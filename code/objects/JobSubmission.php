@@ -15,7 +15,12 @@ class JobSubmission extends DataObject {
 		'Address2' => 'Varchar(255)',
 		'City' => 'Varchar(255)',
 		'State' => 'Varchar(2)',
-		'Postal' => 'Varchar(10)',
+		'Postcode' => 'Varchar(10)',
+		'Address2a' => 'Varchar(255)',
+		'Address2b' => 'Varchar(255)',
+		'City2' => 'Varchar(255)',
+		'State2' => 'Varchar(2)',
+		'Postcode2' => 'Varchar(10)',
 		'Message' => 'Text',
 		'Available' => 'Date',
 
@@ -116,29 +121,43 @@ class JobSubmission extends DataObject {
 	}
 
 	public function getCMSFields() {
+		$fields = parent::getCMSFields();
 
 		// Jobs dropdown
 		$JobsField = new DropdownField('JobID', 'Job', Job::get()->map('ID', 'Title'));
 		$JobsField->setEmptyString('--Select--');
 
-		$fields = new FieldList(
-			new TabSet('Root',
-				new Tab('Main',
-					$JobsField,
-					new TextField('FirstName'),
-					new TextField('LastName'),
-					new StateDropdownField('State', 'State'),
-					new EmailField('Email'),
-					new TextField('Phone'),
-					new DateField('Available'),
-					new UploadField('Resume'),
-					new TextareaField('Message')
-				)
-			)
-		);
+		$fields->addFieldsToTab('Root.Main', array(
+			$JobsField,
+			new TextField('FirstName'),
+			new TextField('LastName'),
+			new StateDropdownField('State', 'State'),
+			new EmailField('Email'),
+			new TextField('Phone'),
+			new DateField('Available'),
+			new UploadField('Resume'),
+			new TextareaField('Message')));
 
+		$fields->extend('updateCMSFields', $fields);
 		return $fields;
+	}
 
+	public function getPresentAddress(){
+		return sprintf('%s, %s, %s, %s %s',
+			$this->Address,
+			$this->Address2,
+			$this->owner->City,
+			$this->owner->State,
+			$this->owner->Postcode);
+	}
+
+	public function getPermanentAddress(){
+		return sprintf('%s, %s, %s, %s %s',
+			$this->Address2a,
+			$this->Address2b,
+			$this->owner->City2,
+			$this->owner->State2,
+			$this->owner->Postcode2);
 	}
 
 }
