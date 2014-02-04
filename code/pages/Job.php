@@ -53,8 +53,8 @@ class Job extends DetailPage{
 			->setConfig('dateformat', 'MMM dd, YYYY');
 
 		// Tag Field
-		$fields->removeByName('Tags');
-		$TagField = TagField::create('JobCategories', null, null, 'Job');
+		$fields->removeByName('Tags');//remove generic tag field
+		$TagField = TagField::create('Categories', null, null, 'Job');
 		$TagField->setSeparator(', ');
 		$fields->addFieldToTab('Root.Main', $TagField, 'Content');
 
@@ -89,26 +89,19 @@ class Job extends DetailPage{
 
 	// Dates
 	public function getPosted() {
-		//if ($this->PostDate) return $this->obj('PostDate')->Format('M n, Y');
 		if ($this->PostDate) return $this->obj('PostDate')->NiceUS();
 		return false;
 	}
 
 	// Apply Button
 	public function getApplyButton() {
-		if ($this->CloseDate) {
-			if ($this->CloseDate > Date('Y-m-d')) {
-				$apply = '<p><button type="submit" onclick="parent.location=\'' . $this->Link() . 'apply\'">Apply for this position</button>';
-				if($this->parent()->Application()->ID!=0){
-					$download = $this->parent()->Application()->URL;
-					$apply.=" or <a href=\"$download\" target=\"_blank\">Download the Application</a>";
-				}
-				$apply.="</p>";
-				return $apply;
-			} else {
-				return '<p><b>No longer accepting applications for this position</b></p>';
-			}
+		$apply = '<p><button type="submit" onclick="parent.location=\'' . $this->Link() . 'apply\'">Apply for this position</button>';
+		if($this->parent()->Application()->ID!=0){
+			$download = $this->parent()->Application()->URL;
+			$apply.=" or <a href=\"$download\" target=\"_blank\">Download the Application</a>";
 		}
+		$apply.="</p>";
+		return $apply;
 	}
 
 	// return Requirements in order
@@ -130,9 +123,18 @@ class Job extends DetailPage{
 		return $this->parent()->Application()->URL;
 	}
 
+	public function getTags(){
+		return $this->Categories();
+	}
+
 }
 
 class Job_Controller extends DetailPage_Controller{
+
+	private static $allowed_actions = array(
+		'apply',
+		'JobApp',
+		'complete');
 
 	public function init() {
 		parent::init();
@@ -158,36 +160,30 @@ class Job_Controller extends DetailPage_Controller{
 
 	public function JobApp() {
 
-		$App = singleton('AlaarkSubmission');
+		$App = singleton('JobSubmission');
 
 		$fields = $App->getFrontEndFields();
-
-		//debug::show($fields);
 
 		$actions = FieldList::create(
 			new FormAction('doApply', 'Apply')
 		);
 
 		$required = $App->getRequiredFields();
-		/*
+
 		$required = new RequiredFields(array(
 			'FirstName',
 			'LastName',
 			'Email',
-			'Phone',
-			//'Resume'
-		));
-		*/
+			'Phone'));
+
 
 		return Form::create($this, "JobApp", $fields, $actions, $required);
-			//->addWell()
-			//->setLayout("horizontal");
 
 	}
 
 	public function doApply($data, $form){
 
-		$entry = new AlaarkSubmission();
+		$entry = new JobSubmission();
 		$form->saveInto($entry);
 
 		$entry->JobID = $this->ID;
@@ -205,8 +201,6 @@ class Job_Controller extends DetailPage_Controller{
 	        	JobSubmission::get()
 	        	->byID($entry->ID)
 	        );
-
-	        //debug::show($email);
 
 	        $email->send();
 

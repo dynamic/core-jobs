@@ -56,22 +56,23 @@ class JobHolder extends HolderPage{
 			->sort('PostDate DESC');
 	}
 
-	/*public function getCategoryList() {
-		$Cats = JobCategory::get();
+	// tag list for sidebar
+	public function getTags() {
 
-		$doSet = new ArrayList();
-		foreach ($Cats as $cat) {
-			$doSet->push(new ArrayData(array(
-				'Category' => $cat->Name,
-				'JobCount' => $cat->Jobs()
-					->where("\"PostDate\" <= '" . date('Y-m-d') . "'")
-					->Count()
-			)));
+		$hit = JobCategory::get()
+			->filter(array(
+				'Jobs.ID:GreaterThan'=>0,
+				'Jobs.ClassName' => $this->stat('item_class'),
+				'Jobs.ID.ParentID' => $this->ID))
+			//->sort('RelatedPages', 'DESC')
+			->limit(10);
+		if($hit->Count()==0){
+			$hit = false;
 		}
-		return $doSet;
+		return $hit;
 	}
 
-	public function getJobTypeList() {
+	/*public function getJobTypeList() {
 		$JobTypes = singleton('Job')->dbObject('PositionType')->enumValues();
 
 		$doSet = new ArrayList();
@@ -91,6 +92,10 @@ class JobHolder extends HolderPage{
 
 class JobHolder_Controller extends HolderPage_Controller{
 
+	private static $allowed_actions = array(
+		'tag',
+		'application');
+
 	public function init() {
 		parent::init();
 
@@ -109,37 +114,25 @@ class JobHolder_Controller extends HolderPage_Controller{
 			->sort('StartDate DESC');
 	}
 
-	/*// filter by job category
-	public function category() {
+	public function tag() {
 
-		// get ID from url params
-		$cat = 0;
-		$Params = $this->getURLParams();
-		if($Params['ID']) {
-			$cat = $Params['ID'];
-			$cat = Convert::raw2sql($cat);
-		}
+		$request = $this->request;
+		$params = $request->allParams();
 
-		if ($cat) {
-			if ($Category = JobCategory::get()->filter('Name', $cat)->First()) {
-				$Results = $Category->Jobs()
-					//->filter(array('CloseDate:GreaterThan' => date('Y-m-d'), 'StartDate:LessThan' => date('Y-m-d')))
-					->where("\"PostDate\" <= '" . date('Y-m-d') . "'")
-					->sort('StartDate DESC');
-				$CategoryName = $Category->Name;
-			} else {
-				$Results = false;
-				$CategoryName = $cat;
-				//debug::show($Category);
-			}
+		if ($tag = Convert::raw2sql($params['ID'])) {
 
-			return $this->render(array(
-				'Results' => $Results,
-				'Cat' => $CategoryName
+			$filter = array('Categories.Title' => $tag);
+
+			return $this->customise(array(
+				'Message' => 'showing entries tagged "' . $tag . '"',
+				'Items' => $this->Items($filter)
 			));
+
 		}
 
-	}*/
+		return $this->Items();
+
+	}
 
 	/*// fiter by job type
 	public function type() {

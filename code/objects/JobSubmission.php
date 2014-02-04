@@ -11,6 +11,11 @@ class JobSubmission extends DataObject {
 		'LastName' => 'Varchar(255)',
 		'Email' => 'Varchar(255)',
 		'Phone' => 'Varchar(255)',
+		'Address' => 'Varchar(255)',
+		'Address2' => 'Varchar(255)',
+		'City' => 'Varchar(255)',
+		'State' => 'Varchar(2)',
+		'Postal' => 'Varchar(10)',
 		'Message' => 'Text',
 		'Available' => 'Date',
 
@@ -64,10 +69,13 @@ class JobSubmission extends DataObject {
 	public function getFrontEndFields($params = null) {
 
 		// Resume Upload
-		$ResumeField = FileField::create('Resume')->setTitle('Resume');
+		$ResumeField = UploadField::create('Resume')->setTitle('Resume');
 		$ResumeField->getValidator()->allowedExtensions = array('pdf', 'doc', 'docx');
 		$ResumeField->setFolderName('Uploads/Resumes');
 		$ResumeField->setConfig('allowedMaxFileNumber', 1);
+		$ResumeField->setCanAttachExisting(false);
+		$ResumeField->setCanPreviewFolder(false);
+		$ResumeField->relationAutoSetting = false;
 
 		$fields = FieldList::create(
 			TextField::create('FirstName', 'First Name')
@@ -95,7 +103,6 @@ class JobSubmission extends DataObject {
 		$controller = Controller::curr();
 		$request = $controller->Request;
 		$params = $request->allParams();
-		debug::show($params);
 	}
 
 	// Required fields
@@ -120,6 +127,7 @@ class JobSubmission extends DataObject {
 					$JobsField,
 					new TextField('FirstName'),
 					new TextField('LastName'),
+					new StateDropdownField('State', 'State'),
 					new EmailField('Email'),
 					new TextField('Phone'),
 					new DateField('Available'),
@@ -131,74 +139,6 @@ class JobSubmission extends DataObject {
 
 		return $fields;
 
-	}
-
-	// populate drop downs in forms
-	public function StatesList() {
-		return array(
-			'AL'=>"Alabama",
-			'AK'=>"Alaska",
-			'AZ'=>"Arizona",
-			'AR'=>"Arkansas",
-			'CA'=>"California",
-			'CO'=>"Colorado",
-			'CT'=>"Connecticut",
-			'DE'=>"Delaware",
-			'DC'=>"District Of Columbia",
-			'FL'=>"Florida",
-			'GA'=>"Georgia",
-			'HI'=>"Hawaii",
-			'ID'=>"Idaho",
-			'IL'=>"Illinois",
-			'IN'=>"Indiana",
-			'IA'=>"Iowa",
-			'KS'=>"Kansas",
-			'KY'=>"Kentucky",
-			'LA'=>"Louisiana",
-			'ME'=>"Maine",
-			'MD'=>"Maryland",
-			'MA'=>"Massachusetts",
-			'MI'=>"Michigan",
-			'MN'=>"Minnesota",
-			'MS'=>"Mississippi",
-			'MO'=>"Missouri",
-			'MT'=>"Montana",
-			'NE'=>"Nebraska",
-			'NV'=>"Nevada",
-			'NH'=>"New Hampshire",
-			'NJ'=>"New Jersey",
-			'NM'=>"New Mexico",
-			'NY'=>"New York",
-			'NC'=>"North Carolina",
-			'ND'=>"North Dakota",
-			'OH'=>"Ohio",
-			'OK'=>"Oklahoma",
-			'OR'=>"Oregon",
-			'PA'=>"Pennsylvania",
-			'RI'=>"Rhode Island",
-			'SC'=>"South Carolina",
-			'SD'=>"South Dakota",
-			'TN'=>"Tennessee",
-			'TX'=>"Texas",
-			'UT'=>"Utah",
-			'VT'=>"Vermont",
-			'VA'=>"Virginia",
-			'WA'=>"Washington",
-			'WV'=>"West Virginia",
-			'WI'=>"Wisconsin",
-			'WY'=>"Wyoming",
-			'-' => '-----',
-			'AB' => 'Alberta',
-			'BC' => 'British Columbia',
-			'MB' => 'Manitoba',
-			'NB' => 'New Brunswick',
-			'NL' => 'Newfoundland and Labrador',
-			'NS' => 'Nova Scotia',
-			'ON' => 'Ontario',
-			'PE' => 'Prince Edward Island',
-			'QC' => 'Quebec',
-			'SK' => 'Saskatchewan'
-		);
 	}
 
 }

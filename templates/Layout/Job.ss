@@ -11,7 +11,7 @@
 		<div class="toolbar">
 			<% include ShareThis %>
 		</div>
-
+		$ApplyButton
 		<div class="content typography">$Content</div>
 
 		<% if SlideShow %>
@@ -20,7 +20,7 @@
 			</div>
 		<% end_if %>
 
-		<% if Tags %><p><% include Tags %></p><% end_if %>
+		<% if Tags %><p><% include JobCategories %></p><% end_if %>
 
 	</article>
 
