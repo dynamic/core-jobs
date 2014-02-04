@@ -1,47 +1,49 @@
 <?php
 
 class JobSubmission extends DataObject {
-	
-	static $db = array(
+
+	private static $singular_name = 'Application';
+	private static $plural_name = 'Applications';
+	private static $description = 'Online job application allowing for a resume upload';
+
+	private static $db = array(
 		'FirstName' => 'Varchar(255)',
 		'LastName' => 'Varchar(255)',
 		'Email' => 'Varchar(255)',
 		'Phone' => 'Varchar(255)',
 		'Message' => 'Text',
 		'Available' => 'Date',
-		
+
 	);
-	
-	static $has_one = array(
+
+	private static $has_one = array(
 		'Job' => 'Job',
 		'Resume' => 'File'
 	);
-	
-	static $has_many = array(
-		'Links' => 'JobLink'
-	);
-	
-	static $singular_name = "Application";
-	static $plural_name = "Applications";
-	
-	static $default_sort = 'Created DESC';
-	
-	static $casting = array(
+
+	private static $has_many = array();
+	private static $many_many = array();
+	private static $many_many_extraFields = array();
+	private static $belongs_many_many = array();
+
+	private static $default_sort = 'Created DESC';
+
+	private static $casting = array(
 		"CreatedLabel" => "Text"
 	);
-	
-	static $summary_fields = array(
+
+	private static $summary_fields = array(
 		'Name' => 'Applicant',
 		'Job.Title' => 'Job',
 		'CreatedLabel' => 'Date'
 	);
-	
-	static $searchable_fields = array(
+
+	private static $searchable_fields = array(
 		'FirstName',
 		'LastName',
 		'Job.ID'
 	);
-	
+
 	public function getName() {
 		if ($this->FirstName) {
 			return $this->FirstName . ' ' . $this->LastName;
@@ -49,35 +51,24 @@ class JobSubmission extends DataObject {
 			return 'No Name';
 		}
 	}
-	
-	public function getCreatedLabel() { 
-		return $this->getNiceDate(); 
+
+	public function getCreatedLabel() {
+		return $this->getNiceDate();
 	}
-	
+
 	// formattedDate
 	public function getNiceDate() {
 		return $this->obj('Created')->Format('M j Y g:i a');
 	}
-	
+
 	public function getFrontEndFields($params = null) {
-		//$fields = $this->scaffoldFormFields($params);
-		
-		// Date Available
-		//$DateField = new DateField('Available', 'Date Available');
-		//$DateField->setConfig('showcalendar', true);
-		
+
 		// Resume Upload
-		//$ResumeField = new FileField('Resume', 'Resume');
-		//$ResumeField->getValidator()->allowedExtensions = array('pdf', 'doc', 'docx');
-		//$ResumeField->setFolderName('Uploads/Resumes');
-		//$ResumeField->setAttribute('required', true);
-		//$ResumeField->setConfig('allowedMaxFileNumber', 1);
-		//$ResumeField->setRecord($this); 
-		
-		// Links
-		$gridFieldConfig = GridFieldConfig_RelationEditor::create();
-		$LinksField = new GridField('Links', 'Links', JobLink::get(), $gridFieldConfig);
-		
+		$ResumeField = FileField::create('Resume')->setTitle('Resume');
+		$ResumeField->getValidator()->allowedExtensions = array('pdf', 'doc', 'docx');
+		$ResumeField->setFolderName('Uploads/Resumes');
+		$ResumeField->setConfig('allowedMaxFileNumber', 1);
+
 		$fields = FieldList::create(
 			TextField::create('FirstName', 'First Name')
 				->setAttribute('required', true),
@@ -89,40 +80,43 @@ class JobSubmission extends DataObject {
 				->setAttribute('required', true),
 			DateField::create('Available', 'Date Available')
 				->setConfig('showcalendar', true),
-			FileField::create('Resume', 'Resume')
-				//->addHelpText('accepted formats: .doc, .docx, .pdf')
-				->setFolderName('Uploads/Resumes'),
-			//$ResumeField,
-			//$LinksField,
+			$ResumeField,
 			TextareaField::create('Message'),
-				//->setSize('xlarge')
 			HiddenField::create('JobID')
+				->setValue($this->getJobID())
 		);
-		
+
 		$this->extend('updateFrontEndFields', $fields);
-	
+
 		return $fields;
 	}
-	
+
+	public function getJobID(){
+		$controller = Controller::curr();
+		$request = $controller->Request;
+		$params = $request->allParams();
+		debug::show($params);
+	}
+
 	// Required fields
 	public function getRequiredFields() {
 		return new RequiredFields(array(
 			'FirstName',
 			'LastName',
 			'Email',
-			'Phone'		
+			'Phone'
 		));
 	}
-	
+
 	public function getCMSFields() {
-	
+
 		// Jobs dropdown
 		$JobsField = new DropdownField('JobID', 'Job', Job::get()->map('ID', 'Title'));
 		$JobsField->setEmptyString('--Select--');
-	
+
 		$fields = new FieldList(
-			new TabSet('Root', 
-				new Tab('Main', 
+			new TabSet('Root',
+				new Tab('Main',
 					$JobsField,
 					new TextField('FirstName'),
 					new TextField('LastName'),
@@ -134,40 +128,40 @@ class JobSubmission extends DataObject {
 				)
 			)
 		);
-		
+
 		return $fields;
-		
+
 	}
-	
+
 	// populate drop downs in forms
-	function StatesList() {
+	public function StatesList() {
 		return array(
-			'AL'=>"Alabama",  
-			'AK'=>"Alaska",  
-			'AZ'=>"Arizona",  
-			'AR'=>"Arkansas",  
-			'CA'=>"California",  
-			'CO'=>"Colorado",  
-			'CT'=>"Connecticut",  
-			'DE'=>"Delaware",  
-			'DC'=>"District Of Columbia",  
-			'FL'=>"Florida",  
-			'GA'=>"Georgia",  
-			'HI'=>"Hawaii",  
-			'ID'=>"Idaho",  
-			'IL'=>"Illinois",  
-			'IN'=>"Indiana",  
-			'IA'=>"Iowa",  
-			'KS'=>"Kansas",  
-			'KY'=>"Kentucky",  
-			'LA'=>"Louisiana",  
-			'ME'=>"Maine",  
-			'MD'=>"Maryland",  
-			'MA'=>"Massachusetts",  
-			'MI'=>"Michigan",  
-			'MN'=>"Minnesota",  
-			'MS'=>"Mississippi",  
-			'MO'=>"Missouri",  
+			'AL'=>"Alabama",
+			'AK'=>"Alaska",
+			'AZ'=>"Arizona",
+			'AR'=>"Arkansas",
+			'CA'=>"California",
+			'CO'=>"Colorado",
+			'CT'=>"Connecticut",
+			'DE'=>"Delaware",
+			'DC'=>"District Of Columbia",
+			'FL'=>"Florida",
+			'GA'=>"Georgia",
+			'HI'=>"Hawaii",
+			'ID'=>"Idaho",
+			'IL'=>"Illinois",
+			'IN'=>"Indiana",
+			'IA'=>"Iowa",
+			'KS'=>"Kansas",
+			'KY'=>"Kentucky",
+			'LA'=>"Louisiana",
+			'ME'=>"Maine",
+			'MD'=>"Maryland",
+			'MA'=>"Massachusetts",
+			'MI'=>"Michigan",
+			'MN'=>"Minnesota",
+			'MS'=>"Mississippi",
+			'MO'=>"Missouri",
 			'MT'=>"Montana",
 			'NE'=>"Nebraska",
 			'NV'=>"Nevada",
@@ -177,21 +171,21 @@ class JobSubmission extends DataObject {
 			'NY'=>"New York",
 			'NC'=>"North Carolina",
 			'ND'=>"North Dakota",
-			'OH'=>"Ohio",  
-			'OK'=>"Oklahoma",  
-			'OR'=>"Oregon",  
-			'PA'=>"Pennsylvania",  
-			'RI'=>"Rhode Island",  
-			'SC'=>"South Carolina",  
+			'OH'=>"Ohio",
+			'OK'=>"Oklahoma",
+			'OR'=>"Oregon",
+			'PA'=>"Pennsylvania",
+			'RI'=>"Rhode Island",
+			'SC'=>"South Carolina",
 			'SD'=>"South Dakota",
-			'TN'=>"Tennessee",  
-			'TX'=>"Texas",  
-			'UT'=>"Utah",  
-			'VT'=>"Vermont",  
-			'VA'=>"Virginia",  
-			'WA'=>"Washington",  
-			'WV'=>"West Virginia",  
-			'WI'=>"Wisconsin",  
+			'TN'=>"Tennessee",
+			'TX'=>"Texas",
+			'UT'=>"Utah",
+			'VT'=>"Vermont",
+			'VA'=>"Virginia",
+			'WA'=>"Washington",
+			'WV'=>"West Virginia",
+			'WI'=>"Wisconsin",
 			'WY'=>"Wyoming",
 			'-' => '-----',
 			'AB' => 'Alberta',
@@ -203,8 +197,8 @@ class JobSubmission extends DataObject {
 			'ON' => 'Ontario',
 			'PE' => 'Prince Edward Island',
 			'QC' => 'Quebec',
-			'SK' => 'Saskatchewan'			
+			'SK' => 'Saskatchewan'
 		);
 	}
-	
+
 }

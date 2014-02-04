@@ -1,33 +1,32 @@
-<div class="content-container">	
-	<section>
-		<h1>$Title</h1>
-		
-		<% if Cat %>
-			<h3 class="filter">$Cat Jobs</h3>
-		<% else_if Type %>
-			<h3 class="filter">$Type Jobs</h3>
-		<% end_if %>
-    
-    	<% if Results %>     
-	        <% control Results %>
-	        <article>
-	            <div><b>$StartDate.Format(F j Y)</b></div>
-	            
-	            <h2><a href="$Link">$Title</a></h2>
-	            
-	            <% include JobSummary %>
-	            
-	            <% include JobDetail %>
-	            
-	        </article>
-	        <% end_control %>
-	    <% else %>
-	    	<p>No postings at this time, please check back soon.</p>
-        <% end_if %>
-	</section>
-	<section>
-		$Form
-		$PageComments
-	</section>	
+<div class="row">
+	$Breadcrumbs
 </div>
-<% include JobSideBar %>
+<div class="twelve columns alpha typography">
+	<article>
+		<h2>$Title</h2>
+		<% if $SubTitle %><h3>$SubTitle</h3><% end_if %>
+		<div class="content typography">$Content</div>
+	</article>
+
+	<% if $Message %><h4>$Message</h4><% end_if %>
+
+	<% if Items %>
+		<% loop Items %>
+			<section class="row $EvenOdd clearfix">
+				$Summary
+			</section>
+		<% end_loop %>
+
+		<% with Items %>
+			<% include Pagination %>
+		<% end_with %>
+	<% else %>
+		<p>No entries</p>
+	<% end_if %>
+</div>
+<div class="four columns sidebar omega">
+	<aside>
+		<% include RssLink %>
+		<% include TagList %>
+	</aside>
+</div>
