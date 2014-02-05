@@ -21,7 +21,10 @@ class JobSubmission extends DataObject {
 		'City2' => 'Varchar(255)',
 		'State2' => 'Varchar(2)',
 		'Postcode2' => 'Varchar(10)',
-		'Message' => 'Text',
+		'ReferredBy' => 'Varchar(255)',
+		'SalaryDesired' => 'Currency',
+		'CurrentlyEmployed' => 'Boolean',
+		'PriorApplication' => 'Boolean',
 		'Available' => 'Date',
 
 	);
@@ -94,7 +97,6 @@ class JobSubmission extends DataObject {
 			DateField::create('Available', 'Date Available')
 				->setConfig('showcalendar', true),
 			$ResumeField,
-			TextareaField::create('Message'),
 			HiddenField::create('JobID')
 				->setValue($this->getJobID())
 		);
@@ -135,8 +137,7 @@ class JobSubmission extends DataObject {
 			new EmailField('Email'),
 			new TextField('Phone'),
 			new DateField('Available'),
-			new UploadField('Resume'),
-			new TextareaField('Message')));
+			new UploadField('Resume')));
 
 		$fields->extend('updateCMSFields', $fields);
 		return $fields;
