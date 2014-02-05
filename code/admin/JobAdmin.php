@@ -1,16 +1,12 @@
 <?php
 
 class JobAdmin extends ModelAdmin {
-	public static $managed_models = array(
+	private static $managed_models = array(
 		'JobSubmission',
-		'JobCategory',
-		//'JobResponsibility',
-		//'JobRequirement',
-		//'JobSkill'
-	);
+		'JobCategory');
 
-	static $url_segment = 'jobs';
+	private static $url_segment = 'jobs';
 
-	static $menu_title = 'Jobs';
+	private static $menu_title = 'Jobs';
 
 }
