@@ -5,9 +5,9 @@
 	/*height: 80px;*/
 }
 
-.first{
+/*.first{
 	border-top: dotted 1px #444;
-}
+}*/
 
 .job h3{
 	margin-top: 0;
@@ -75,7 +75,6 @@ html[xmlns] .clearfix {
 	}
 	
 /* Job Details */
-.columns,
 ul.collapse,
 ol.collapse
 {

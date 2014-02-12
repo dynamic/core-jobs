@@ -95,12 +95,12 @@ class Job extends DetailPage{
 
 	// Apply Button
 	public function getApplyButton() {
-		$apply = '<p><button type="submit" onclick="parent.location=\'' . $this->Link() . 'apply\'">Apply for this position</button>';
+		$apply = '<button type="submit" class="job-apply" onclick="parent.location=\'' . $this->Link() . 'apply\'">Apply for this position</button>';
 		if($this->parent()->Application()->ID!=0){
 			$download = $this->parent()->Application()->URL;
 			$apply.=" or <a href=\"$download\" target=\"_blank\">Download the Application</a>";
 		}
-		$apply.="</p>";
+		$apply.="";
 		return $apply;
 	}
 
