@@ -1,11 +1,46 @@
 <?php
 
-/*class JobRequirement extends JobDetail {
+class JobRequirement extends JobDetail {
 
-	static $belongs_many_many = array(
+	private static $singular_name = 'Job Requirement';
+	private static $plural_name = 'Job Requirements';
+	private static $description = 'Specific requirement for the related job';
+
+	private static $db = array();
+	private static $has_one = array();
+	private static $has_many = array();
+	private static $many_many = array();
+	private static $many_many_extraFields = array();
+	private static $belongs_many_many = array(
 		'Jobs' => 'Job'
 	);
 
-	static $singular_name = 'Requirement';
-	static $plural_name = 'Requirements';
-}*/
+	private static $casting = array();
+	private static $defaults = null;
+	private static $default_sort = null;
+
+
+	private static $summary_fields = null;
+	private static $searchable_fields = null;
+	private static $field_labels = null;
+	private static $indexes = null;
+
+	public function getCMSFields(){
+		$fields = parent::getCMSFields();
+
+
+		$this->extend('updateCMSFields', $fields);
+		return $fields;
+	}
+
+	public function validate(){
+		$result = parent::validate();
+
+		/*if($this->Country == 'DE' && $this->Postcode && strlen($this->Postcode) != 5) {
+			$result->error('Need five digits for German postcodes');
+		}*/
+
+		return $result;
+	}
+
+}

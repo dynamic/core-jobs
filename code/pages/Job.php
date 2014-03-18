@@ -39,6 +39,8 @@ class Job extends DetailPage{
 		)*/
 	);
 
+	private static $belongs_many_many = array();
+
 	public function populateDefaults() {
 	    $this->PostDate = date('Y-m-d');
 	    parent::populateDefaults();
@@ -58,23 +60,6 @@ class Job extends DetailPage{
 		$TagField->setSeparator(', ');
 		$fields->addFieldToTab('Root.Main', $TagField, 'Content');
 
-	    /*// Requirements
-	    $gridFieldConfig = GridFieldConfig_RelationEditor::create()
-	    	->addComponents(new GridFieldSortableRows('SortOrder'));
-	    $gridFieldConfig->getComponentByType('GridFieldAddExistingAutocompleter')->setSearchFields(array('Name', 'Content'));
-	    $RequirementsField = new GridField("Requirements", "Requirements", $this->Requirements()->sort('SortOrder'), $gridFieldConfig);
-
-	    // Skills
-	    $gridFieldConfig = GridFieldConfig_RelationEditor::create()
-	    	->addComponents(new GridFieldSortableRows('SortOrder'));
-	    $gridFieldConfig->getComponentByType('GridFieldAddExistingAutocompleter')->setSearchFields(array('Name', 'Content'));
-	    $SkillsField = new GridField("Skills", "Skills", $this->Skills()->sort('SortOrder'), $gridFieldConfig);
-
-	    // Responsibilities
-	    $gridFieldConfig = GridFieldConfig_RelationEditor::create()
-	    	->addComponents(new GridFieldSortableRows('SortOrder'));
-	    $gridFieldConfig->getComponentByType('GridFieldAddExistingAutocompleter')->setSearchFields(array('Name', 'Content'));
-	    $ResponsibilityField = new GridField("Responsibilities", "Responsibilities", $this->Responsibilities()->sort('SortOrder'), $gridFieldConfig);*/
 
 		$fields->addFieldsToTab("Root.Job", array(
 			DropdownField::create('PositionType', 'Position Type', singleton('Job')->dbObject('PositionType')->enumValues())
@@ -83,6 +68,8 @@ class Job extends DetailPage{
 		));
 
 		$fields->extend('updateCMSFields', $fields);
+
+		$fields->removeByName('Address');
 
 		return $fields;
 	}
