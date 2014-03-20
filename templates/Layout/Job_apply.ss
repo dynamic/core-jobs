@@ -12,6 +12,6 @@
             
 	</article>
 </div>
-<% with Parent %>
+<% with $Parent %>
 <% include JobSideBar %>
 <% end_with %>

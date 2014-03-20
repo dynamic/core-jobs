@@ -68,9 +68,9 @@ class Job extends DetailPage{
 			->setConfig('dateformat', 'MMM dd, YYYY');
 
 		$requirementsConfig = GridFieldConfig_RelationEditor::create();
-		$requirementsConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
 		$requirementsConfig->addComponent(new GridFieldSortableRows("SortOrder"));
 		if(class_exists('GridFieldManyRelationHandler')){
+			$requirementsConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
 			$requirementsConfig->addComponent(new GridFieldManyRelationHandler());
 		}
 
@@ -82,9 +82,9 @@ class Job extends DetailPage{
 		);
 
 		$skillsConfig = GridFieldConfig_RelationEditor::create();
-		$skillsConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
 		$skillsConfig->addComponent(new GridFieldSortableRows("SortOrder"));
 		if(class_exists('GridFieldManyRelationHandler')){
+			$skillsConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
 			$skillsConfig->addComponent(new GridFieldManyRelationHandler());
 		}
 
@@ -96,9 +96,9 @@ class Job extends DetailPage{
 		);
 
 		$responsibilitiesConfig = GridFieldConfig_RelationEditor::create();
-		$responsibilitiesConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
 		$responsibilitiesConfig->addComponent(new GridFieldSortableRows("SortOrder"));
 		if(class_exists('GridFieldManyRelationHandler')){
+			$responsibilitiesConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
 			$responsibilitiesConfig->addComponent(new GridFieldManyRelationHandler());
 		}
 
@@ -108,8 +108,6 @@ class Job extends DetailPage{
 			$this->Responsibilities()->sort('SortOrder'),
 			$responsibilitiesConfig
 		);
-
-		//$fields->addFieldToTab('Root.Main', $TagField, 'Content');
 
 
 		$fields->addFieldsToTab(

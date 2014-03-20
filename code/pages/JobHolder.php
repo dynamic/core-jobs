@@ -52,48 +52,15 @@ class JobHolder extends HolderPage{
 	// custom gets
 	public function getPostedJobs() {
 		return Job::get()
-			->where("\"PostDate\" <= '" . date('Y-m-d') . "'")
+			->filter(array('PostDate:GreaterThanOrEqual' => date('Y-m-d')))
 			->sort('PostDate DESC');
 	}
-
-	// tag list for sidebar
-	/*public function getTags() {
-
-		$hit = Tag::get()
-			->filter(array(
-				'Jobs.ID:GreaterThan'=>0,
-				'Jobs.ClassName' => $this->stat('item_class'),
-				'Jobs.ID.ParentID' => $this->ID))
-			//->sort('RelatedPages', 'DESC')
-			->limit(10);
-		if($hit->Count()==0){
-			$hit = false;
-		}
-		return $hit;
-	}*/
-
-	/*public function getJobTypeList() {
-		$JobTypes = singleton('Job')->dbObject('PositionType')->enumValues();
-
-		$doSet = new ArrayList();
-		foreach(singleton('Job')->dbObject('PositionType')->enumValues() as $type) {
-			$doSet->push(new ArrayData(array(
-				'Type' => $type,
-				'JobCount' => $this->getPostedJobs()
-					->filter(array('PositionType' => $type))
-					->Count()
-			)));
-		}
-
-		return $doSet;
-	}*/
 
 }
 
 class JobHolder_Controller extends HolderPage_Controller{
 
 	private static $allowed_actions = array(
-		'tag',
 		'application');
 
 	public function init() {
@@ -102,61 +69,6 @@ class JobHolder_Controller extends HolderPage_Controller{
 		Requirements::css('jobs/css/job.css');
 
 	}
-
-	/*function index($request) {
-		return $this->render(array(
-			'Cat' => false
-		));
-	}
-
-	public function Results() {
-		return $this->getPostedJobs()
-			->sort('StartDate DESC');
-	}*/
-
-	public function tag() {
-
-		$request = $this->request;
-		$params = $request->allParams();
-
-		if ($tag = Convert::raw2sql($params['ID'])) {
-
-			$filter = array('Categories.Title' => $tag);
-
-			return $this->customise(array(
-				'Message' => 'showing entries tagged "' . $tag . '"',
-				'Items' => $this->Items($filter)
-			));
-
-		}
-
-		return $this->Items();
-
-	}
-
-	/*// fiter by job type
-	public function type() {
-
-		// get ID from url params
-		$type = 0;
-		$Params = $this->getURLParams();
-		if($Params['ID']) {
-			$type = $Params['ID'];
-			$type = Convert::raw2sql($type);
-		}
-
-		if ($type) {
-			$Results = Job::get()
-				->filter(array('PositionType' => $type))
-				->where("\"PostDate\" <= '" . date('Y-m-d') . "'")
-				->sort('PostDate DESC');
-
-			return $this->render(array(
-				'Results' => $Results,
-				'Type' => $type
-			));
-		}
-	}*/
 
 	public function application(){
 

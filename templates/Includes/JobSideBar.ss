@@ -1,17 +1,12 @@
 <aside>
-	<% if CategoryList %>
-	    <h3>Categories</h3>
-	    <ul>    	
-	    	<% control CategoryList %>
-	        <li><a href="{$Top.Link}category/$Category/">$Category</a> ($JobCount)</li>
-	        <% end_control %>
-	    </ul>
+	<% if $Tags %>
+	    <% include $TagList %>
 	<% end_if %>
 
     <h3>Types</h3>
     <ul>
-    	<% control JobTypeList %>
+    	<% loop $JobTypeList %>
         <li><a href="{$Top.Link}type/$Type/">$Type</a> ($JobCount)</li>
-        <% end_control %>
+        <% end_loop %>
     </ul>
 </aside>
