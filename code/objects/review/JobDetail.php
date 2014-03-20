@@ -38,7 +38,7 @@ class JobDetail extends DataObject {
 		$fields->addFieldToTab(
 			'Root.Main',
 			TextField::create('Title')
-				->('Title')
+				->setTitle('Title')
 		);
 		$fields->addFieldToTab(
 			'Root.Main',

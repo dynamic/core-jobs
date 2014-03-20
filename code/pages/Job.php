@@ -13,6 +13,7 @@ class Job extends DetailPage{
 	private static $db = array(
 		'PositionType' => "Enum('Full-time, Part-time, Freelance, Internship')",
 		'PostDate' => 'Date',
+		'EndPostDate' => 'Date',
 		'Experience' => 'Varchar(200)'
 	);
 
@@ -21,14 +22,14 @@ class Job extends DetailPage{
 	);
 
 	private static $many_many = array(
-		'Categories' => 'JobCategory',
-		//'Requirements' => 'JobRequirement',
-		//'Skills' => 'JobSkill',
-		//'Responsibilities' => 'JobResponsibility'
+		'Tags' => 'Tag',
+		'Requirements' => 'JobRequirement',
+		'Skills' => 'JobSkill',
+		'Responsibilities' => 'JobResponsibility'
 	);
 
 	private static $many_many_extraFields = array(
-		/*'Requirements' => array(
+		'Requirements' => array(
 			'SortOrder' => 'Int'
 		),
 		'Skills' => array(
@@ -36,10 +37,19 @@ class Job extends DetailPage{
 		),
 		'Responsibilities' => array(
 			'SortOrder' => 'Int'
-		)*/
+		)
 	);
 
 	private static $belongs_many_many = array();
+
+	private static $casting = array();
+	private static $defaults = null;
+	private static $default_sort = null;
+
+	private static $summary_fields = null;
+	private static $searchable_fields = null;
+	private static $field_labels = null;
+	private static $indexes = null;
 
 	public function populateDefaults() {
 	    $this->PostDate = date('Y-m-d');
@@ -53,25 +63,126 @@ class Job extends DetailPage{
 		$PostDate = DateField::create('PostDate', 'Position Post Date')
 			->setConfig('showcalendar', true)
 			->setConfig('dateformat', 'MMM dd, YYYY');
+		$endPostDate = DateField::create('EndPostDate', 'Position Post End Date')
+			->setConfig('showcalendar', true)
+			->setConfig('dateformat', 'MMM dd, YYYY');
 
-		// Tag Field
-		$fields->removeByName('Tags');//remove generic tag field
-		$TagField = TagField::create('Categories', null, null, 'Job');
-		$TagField->setSeparator(', ');
-		$fields->addFieldToTab('Root.Main', $TagField, 'Content');
+		$requirementsConfig = GridFieldConfig_RelationEditor::create();
+		$requirementsConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
+		$requirementsConfig->addComponent(new GridFieldSortableRows("SortOrder"));
+		if(class_exists('GridFieldManyRelationHandler')){
+			$requirementsConfig->addComponent(new GridFieldManyRelationHandler());
+		}
+
+		$requirementsGrid = new GridField(
+			'Requirements',
+			'Job Requirements',
+			$this->Requirements()->sort('SortOrder'),
+			$requirementsConfig
+		);
+
+		$skillsConfig = GridFieldConfig_RelationEditor::create();
+		$skillsConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
+		$skillsConfig->addComponent(new GridFieldSortableRows("SortOrder"));
+		if(class_exists('GridFieldManyRelationHandler')){
+			$skillsConfig->addComponent(new GridFieldManyRelationHandler());
+		}
+
+		$skillsGrid = new GridField(
+			'Skills',
+			'Job Skills',
+			$this->Skills()->sort('SortOrder'),
+			$skillsConfig
+		);
+
+		$responsibilitiesConfig = GridFieldConfig_RelationEditor::create();
+		$responsibilitiesConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
+		$responsibilitiesConfig->addComponent(new GridFieldSortableRows("SortOrder"));
+		if(class_exists('GridFieldManyRelationHandler')){
+			$responsibilitiesConfig->addComponent(new GridFieldManyRelationHandler());
+		}
+
+		$responsibilitiesGrid = new GridField(
+			'Responsibilities',
+			'Job Responsibilities',
+			$this->Responsibilities()->sort('SortOrder'),
+			$responsibilitiesConfig
+		);
+
+		//$fields->addFieldToTab('Root.Main', $TagField, 'Content');
 
 
-		$fields->addFieldsToTab("Root.Job", array(
-			DropdownField::create('PositionType', 'Position Type', singleton('Job')->dbObject('PositionType')->enumValues())
-				->setEmptyString('--select--'),
-			$PostDate
-		));
+		$fields->addFieldsToTab(
+			"Root.JobDetails",
+			array(
+				new HeaderField(
+					'JobType',
+					'Position Details',
+					3
+				),
+				DropdownField::create(
+					'PositionType',
+					'Position Type',
+					singleton('Job')->dbObject('PositionType')->enumValues()
+				)->setEmptyString('--select--'),
+				$PostDate,
+				$endPostDate
+			)
+		);
+
+		$fields->addFieldToTab(
+			'Root.JobRequirements',
+			$requirementsGrid
+		);
+		$fields->addFieldToTab(
+			'Root.JobSkills',
+			$skillsGrid
+		);
+		$fields->addFieldToTab(
+			'Root.JobResponsibilities',
+			$responsibilitiesGrid
+		);
 
 		$fields->extend('updateCMSFields', $fields);
 
 		$fields->removeByName('Address');
+		if(class_exists('Addressable')){
+
+			$postal = new RegexTextField('Postcode', 'Postal Code');
+			$postal->setRegex('/^[0-9]+$/');
+
+			$fields->addFieldsToTab(
+				'Root.JobDetails',
+				array(
+					new HeaderField('PositionLocation', 'Position Location Details', 3),
+					TextField::create('Address')
+						->setTitle('Address'),
+					TextField::create('Suburb')
+						->setTitle('City'),
+					$state = StateDropdownField::create('State')
+						->setTitle('State/Province'),
+					$postal,
+					CountryDropdownField::create('Country')
+						->setTitle('Country')
+				)
+			);
+
+			$state->setEmptyString('(Select a state/province)');
+
+		}
+
 
 		return $fields;
+	}
+
+	public function validate(){
+		$result = parent::validate();
+
+		/*if($this->Country == 'DE' && $this->Postcode && strlen($this->Postcode) != 5) {
+			$result->error('Need five digits for German postcodes');
+		}*/
+
+		return $result;
 	}
 
 	// Dates
@@ -82,7 +193,9 @@ class Job extends DetailPage{
 
 	// Apply Button
 	public function getApplyButton() {
-		$apply = '<button type="submit" class="job-apply" onclick="parent.location=\'' . $this->Link() . 'apply\'">Apply for this position</button>';
+		$apply = '<button type="submit" class="job-apply" onclick="parent.location=\''.
+			$this->Link().
+			'apply\'">Apply for this position</button>';
 		if($this->parent()->Application()->ID!=0){
 			$download = $this->parent()->Application()->URL;
 			$apply.=" or <a href=\"$download\" target=\"_blank\">Download the Application</a>";
@@ -111,7 +224,7 @@ class Job extends DetailPage{
 	}
 
 	public function getTags(){
-		return $this->Categories();
+		return $this->Tags();
 	}
 
 }
@@ -134,7 +247,14 @@ class Job_Controller extends DetailPage_Controller{
 
 		$Form = $this->JobApp();
 
-		$Form->Fields()->insertBefore(ReadOnlyField::create('PositionName', 'Position', $this->getTitle()), 'Available');
+		$Form->Fields()->insertBefore(
+			ReadOnlyField::create(
+				'PositionName',
+				'Position',
+				$this->getTitle()
+			),
+			'Available'
+		);
 		$Form->Fields()->push(HiddenField::create('JobID', 'JobID', $this->ID));
 
 		$page = $this->customise(array(

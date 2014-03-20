@@ -57,9 +57,9 @@ class JobHolder extends HolderPage{
 	}
 
 	// tag list for sidebar
-	public function getTags() {
+	/*public function getTags() {
 
-		$hit = JobCategory::get()
+		$hit = Tag::get()
 			->filter(array(
 				'Jobs.ID:GreaterThan'=>0,
 				'Jobs.ClassName' => $this->stat('item_class'),
@@ -70,7 +70,7 @@ class JobHolder extends HolderPage{
 			$hit = false;
 		}
 		return $hit;
-	}
+	}*/
 
 	/*public function getJobTypeList() {
 		$JobTypes = singleton('Job')->dbObject('PositionType')->enumValues();
@@ -103,7 +103,7 @@ class JobHolder_Controller extends HolderPage_Controller{
 
 	}
 
-	function index($request) {
+	/*function index($request) {
 		return $this->render(array(
 			'Cat' => false
 		));
@@ -112,7 +112,7 @@ class JobHolder_Controller extends HolderPage_Controller{
 	public function Results() {
 		return $this->getPostedJobs()
 			->sort('StartDate DESC');
-	}
+	}*/
 
 	public function tag() {
 
