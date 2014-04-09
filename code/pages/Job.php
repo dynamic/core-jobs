@@ -141,7 +141,7 @@ class Job extends DetailPage{
 			$responsibilitiesGrid
 		);
 
-		$fields->extend('updateCMSFields', $fields);
+		$this->extend('updateCMSFields', $fields);
 
 		return $fields;
 	}
