@@ -1,6 +1,3 @@
 ---
 Name: jobs
 ---
-Job:
-  extensions:
-    - Addressable
