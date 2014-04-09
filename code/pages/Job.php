@@ -143,33 +143,6 @@ class Job extends DetailPage{
 
 		$fields->extend('updateCMSFields', $fields);
 
-		$fields->removeByName('Address');
-		if(class_exists('Addressable')){
-
-			$postal = new RegexTextField('Postcode', 'Postal Code');
-			$postal->setRegex('/^[0-9]+$/');
-
-			$fields->addFieldsToTab(
-				'Root.JobDetails',
-				array(
-					new HeaderField('PositionLocation', 'Position Location Details', 3),
-					TextField::create('Address')
-						->setTitle('Address'),
-					TextField::create('Suburb')
-						->setTitle('City'),
-					$state = StateDropdownField::create('State')
-						->setTitle('State/Province'),
-					$postal,
-					CountryDropdownField::create('Country')
-						->setTitle('Country')
-				)
-			);
-
-			$state->setEmptyString('(Select a state/province)');
-
-		}
-
-
 		return $fields;
 	}
 
