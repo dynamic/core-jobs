@@ -7,7 +7,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/dynamic/core-jobs.git"
+      "url": "https://github.com/dynamic/core.git"
     }
   ],
   "require": {
