@@ -1,0 +1,25 @@
+{
+  "name": "dynamic/core-jobs",
+  "description": "The Dynamic Core Jobs Module",
+  "keywords": ["silverstripe", "module"],
+  "license": "BSD-3-Clause",
+  "type": "silverstripe-module",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/dynamic/core-jobs.git"
+    }
+  ],
+  "require": {
+    "dynamic/core": "dev-master"
+  },
+  "authors": [
+    {
+      "name": "Dynamic Inc",
+      "homepage": "http://dynamicagency.com"
+    }
+  ],
+  "extra": {
+    "installer-name": "core-jobs"
+  }
+}
