@@ -20,6 +20,9 @@
     }
   ],
   "extra": {
-    "installer-name": "core-jobs"
+    "installer-name": "core-jobs",
+    "branch-alias": {
+      "1.0": "1.0.x-dev"
+    }
   }
 }
