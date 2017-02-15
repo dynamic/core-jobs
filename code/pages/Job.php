@@ -209,7 +209,7 @@ class Job extends Page
      */
     public function getTags()
     {
-        return $this->Tags();
+        return $this->Categories();
     }
 }
 
