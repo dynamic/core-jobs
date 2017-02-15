@@ -34,6 +34,8 @@ class Job extends Page
         'Experience' => 'HTMLText',
         'RequirementsTitle' => 'Varchar(255',
         'Requirements' => 'HTMLText',
+        'SalaryTitle' => 'Varchar(255)',
+        'Salary' => 'HTMLText',
     );
 
     /**
@@ -80,6 +82,7 @@ class Job extends Page
         $this->SkillsTitle = 'Skills';
         $this->ExperienceTitle = 'Experience';
         $this->RequirementsTitle = 'Requirements';
+        $this->SalaryTitle = 'Salary and Benefits';
 
         parent::populateDefaults();
     }
@@ -128,6 +131,27 @@ class Job extends Page
             HtmlEditorField::create('Requirements'),
         ]);
 
+        $fields->addFieldsToTab('Root.Details.Salary', [
+            TextField::create('SalaryTitle', 'Section Title'),
+            HtmlEditorField::create('Salary'),
+        ]);
+
+        if ($this->ID) {
+            $config = GridFieldConfig_RelationEditor::create();
+            if (class_exists('GridFieldOrderableRows')) {
+                $config->addComponent(new GridFieldOrderableRows('Sort'));
+            }
+            if (class_exists('GridFieldAddExistingSearchButton')) {
+                $config->removeComponentsByType('GridFieldAddExistingAutocompleter');
+                $config->addComponent(new GridFieldAddExistingSearchButton());
+            }
+            $categories = $this->Categories()->sort('Sort');
+            $categoriesField = GridField::create('Spiffs', 'Spiffs', $categories, $config);
+            $fields->addFieldsToTab('Root.Details.Categories', array(
+                $categoriesField,
+            ));
+        }
+
         return $fields;
     }
 
@@ -164,36 +188,14 @@ class Job extends Page
         $apply = '<button type="submit" class="job-apply" onclick="parent.location=\''.
             $this->Link().
             'apply\'">Apply for this position</button>';
-        if ($this->parent()->Application()->ID!=0) {
+
+        if ($this->parent()->Application()->ID != 0) {
             $download = $this->parent()->Application()->URL;
             $apply.=" or <a href=\"$download\" target=\"_blank\">Download the Application</a>";
         }
-        $apply.="";
+        $apply .= "";
+
         return $apply;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRequirementList()
-    {
-        return $this->Requirements()->sort('SortOrder');
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSkillList()
-    {
-        return $this->Skills()->sort('SortOrder');
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getResponsibilityList()
-    {
-        return $this->Responsibilities()->sort('SortOrder');
     }
 
     /**
@@ -207,9 +209,9 @@ class Job extends Page
     /**
      * @return mixed
      */
-    public function getTags()
+    public function getCategoryList()
     {
-        return $this->Categories();
+        return $this->Categories()->sort('Sort');
     }
 }
 
@@ -222,16 +224,6 @@ class Job_Controller extends Page_Controller
         'apply',
         'JobApp',
         'complete');
-
-    /**
-     *
-     */
-    public function init()
-    {
-        parent::init();
-
-        Requirements::css('jobs/css/job.css');
-    }
 
     /**
      * @return ViewableData_Customised

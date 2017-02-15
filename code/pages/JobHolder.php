@@ -1,90 +1,127 @@
 <?php
 
-class JobHolder extends HolderPage{
+class JobHolder extends Page
+{
+    /**
+     * @var string
+     */
+    private static $singular_name = "Job Group";
 
-	private static $singular_name = "Job Group";
-	private static $plural_name = "Job Groups";
-	private static $description = 'Page allowing for and showing job detail pages';
+    /**
+     * @var string
+     */
+    private static $plural_name = "Job Groups";
 
-	public static $item_class = 'Job';
+    /**
+     * @var string
+     */
+    private static $description = 'Page allowing for and showing job detail pages';
 
-	private static $default_child = 'Job';
-	private static $allowed_children = array(
-		'Job');
+    /**
+     * @var array
+     */
+    private static $db = array(
+        'Message' => 'HTMLText',
+        'FromAddress' => 'Varchar(255)',
+        'EmailRecipient' => 'Varchar(255)',
+        'EmailSubject' => 'Varchar(255)'
+    );
 
-	private static $db = array(
-		'Message' => 'HTMLText',
-		'FromAddress' => 'Varchar(255)',
-		'EmailRecipient' => 'Varchar(255)',
-		'EmailSubject' => 'Varchar(255)'
-	);
+    /**
+     * @var array
+     */
+    private static $has_one = array(
+        'Application' => 'File'
+    );
 
-	private static $has_one = array(
-		'Application' => 'File');
+    /**
+     * @var string
+     */
+    private static $default_child = 'Job';
 
-	private static $has_many = array();
-	private static $many_many = array();
-	private static $many_many_extraFields = array();
-	private static $belongs_many_many = array();
+    /**
+     * @var array
+     */
+    private static $allowed_children = array(
+        'Job'
+    );
 
+    /**
+     * @return FieldList
+     */
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
 
-	public function getCMSFields(){
-		$fields = parent::getCMSFields();
+        $app = new UploadField('Application', 'Application Form');
+        $app->allowedExtensions = array('pdf','PDF');
 
-		$app = new UploadField('Application', 'Application Form');
-		$app->allowedExtensions = array('pdf','PDF');
+        $fields->addFieldToTab('Root.ApplicationFile', $app);
 
-		$fields->addFieldToTab('Root.ApplicationFile', $app);
-		$fields->addFieldsToTab('Root.Confirmation', array(
-			HTMLEditorField::create('Message', 'Application Confirmation Message')
-		));
-		$fields->addFieldsToTab('Root.SubmissionEmailSettings', array(
-			EmailField::create('FromAddress','Submission From Address'),
-			EmailField::create('EmailRecipient','Submission Recipient'),
-			TextField::create('EmailSubject','Submission Email Subject Line')
-		));
+        $fields->addFieldsToTab('Root.Configuration', array(
+            EmailField::create('FromAddress', 'Submission From Address'),
+            EmailField::create('EmailRecipient', 'Submission Recipient'),
+            TextField::create('EmailSubject', 'Submission Email Subject Line'),
+            HTMLEditorField::create('Message', 'Submission Message'),
+        ));
 
-		$fields->extend('updateCMSFields', $fields);
+        return $fields;
+    }
 
-		return $fields;
-	}
+    /**
+     * @return ValidationResult
+     */
+    public function validate()
+    {
+        $result = parent::validate();
 
-	// custom gets
-	public function getPostedJobs() {
-		$jobs = Job::get()
-			->filter([
-			    'PostDate:LessThanOrEqual' => date('Y-m-d'),
+        if(!$this->EmailRecipient) {
+            $result->error('Please enter Email Recpient before saving.');
+        }
+
+        if(!$this->EmailSubject) {
+            $result->error('Please enter Email Subject before saving.');
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return DataList
+     */
+    public function getPostedJobs()
+    {
+        $jobs = Job::get()
+            ->filter([
+                'PostDate:LessThanOrEqual' => date('Y-m-d'),
                 'EndPostDate:GreaterThanOrEqual' => date('Y-m-d'),
             ])
-			->sort('PostDate DESC');
+            ->sort('PostDate DESC');
         return $jobs;
-	}
-
+    }
 }
 
-class JobHolder_Controller extends HolderPage_Controller{
+class JobHolder_Controller extends Page_Controller
+{
+    /**
+     * @var array
+     */
+    private static $allowed_actions = array(
+        'application'
+    );
 
-	private static $allowed_actions = array(
-		'application');
-
-	public function init() {
-		parent::init();
-
-		Requirements::css('jobs/css/job.css');
-
-	}
-
-	public function application(){
-
-		//Determine if the application is valid
-		if($params = $this->getURLParams()){
-			if(is_numeric($params['ID']) && $ID = $params['ID']){
-				$application = JobSubmission::get()
-					->byID($ID);
-				return $application->renderWith('JobSubmission');
-			}
-		}
-
-	}
-
+    /**
+     * @return HTMLText
+     */
+    public function application()
+    {
+        //Determine if the application is valid
+        if ($params = $this->getURLParams()) {
+            if (is_numeric($params['ID']) && $ID = $params['ID']) {
+                $application = JobSubmission::get()
+                    ->byID($ID);
+                return $application->renderWith('JobSubmission');
+            }
+        }
+    }
 }

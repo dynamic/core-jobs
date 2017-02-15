@@ -1,164 +1,157 @@
 <?php
 
-class JobSubmission extends DataObject {
+class JobSubmission extends DataObject
+{
+    /**
+     * @var string
+     */
+    private static $singular_name = 'Application';
 
-	private static $singular_name = 'Application';
-	private static $plural_name = 'Applications';
-	private static $description = 'Online job application allowing for a resume upload';
+    /**
+     * @var string
+     */
+    private static $plural_name = 'Applications';
 
-	private static $db = array(
-		'FirstName' => 'Varchar(255)',
-		'LastName' => 'Varchar(255)',
-		'Email' => 'Varchar(255)',
-		'Phone' => 'Varchar(255)',
-		'Address' => 'Varchar(255)',
-		'Address2' => 'Varchar(255)',
-		'City' => 'Varchar(255)',
-		'State' => 'Varchar(2)',
-		'Postcode' => 'Varchar(10)',
-		'Address2a' => 'Varchar(255)',
-		'Address2b' => 'Varchar(255)',
-		'City2' => 'Varchar(255)',
-		'State2' => 'Varchar(2)',
-		'Postcode2' => 'Varchar(10)',
-		'ReferredBy' => 'Varchar(255)',
-		'SalaryDesired' => 'Currency',
-		'CurrentlyEmployed' => 'Boolean',
-		'PriorApplication' => 'Boolean',
-		'Available' => 'Date',
+    /**
+     * @var string
+     */
+    private static $description = 'Online job application allowing for a resume upload';
 
-	);
+    /**
+     * @var array
+     */
+    private static $db = array(
+        'FirstName' => 'Varchar(255)',
+        'LastName' => 'Varchar(255)',
+        'Email' => 'Varchar(255)',
+        'Phone' => 'Varchar(255)',
+        'Available' => 'Date',
+    );
 
-	private static $has_one = array(
-		'Job' => 'Job',
-		'Resume' => 'File'
-	);
+    /**
+     * @var array
+     */
+    private static $has_one = array(
+        'Job' => 'Job',
+        'Resume' => 'File'
+    );
 
-	private static $has_many = array();
-	private static $many_many = array();
-	private static $many_many_extraFields = array();
-	private static $belongs_many_many = array();
+    private static $default_sort = 'Created DESC';
 
-	private static $default_sort = 'Created DESC';
+    /**
+     * @var array
+     */
+    private static $casting = array(
+        "CreatedLabel" => "Text"
+    );
 
-	private static $casting = array(
-		"CreatedLabel" => "Text"
-	);
+    /**
+     * @var array
+     */
+    private static $summary_fields = array(
+        'Name' => 'Applicant',
+        'Job.Title' => 'Job',
+        'Created.NiceUS' => 'Date'
+    );
 
-	private static $summary_fields = array(
-		'Name' => 'Applicant',
-		'Job.Title' => 'Job',
-		'CreatedLabel' => 'Date'
-	);
+    /**
+     * @var array
+     */
+    private static $searchable_fields = array(
+        'FirstName',
+        'LastName',
+        'Job.ID'
+    );
 
-	private static $searchable_fields = array(
-		'FirstName',
-		'LastName',
-		'Job.ID'
-	);
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        if ($this->FirstName) {
+            return $this->FirstName . ' ' . $this->LastName;
+        } else {
+            return 'No Name';
+        }
+    }
 
-	public function getName() {
-		if ($this->FirstName) {
-			return $this->FirstName . ' ' . $this->LastName;
-		} else {
-			return 'No Name';
-		}
-	}
+    public function getTitle()
+    {
+        return $this->getName();
+    }
 
-	public function getCreatedLabel() {
-		return $this->getNiceDate();
-	}
+    /**
+     * @param null $params
+     * @return static
+     */
+    public function getFrontEndFields($params = null)
+    {
+        // Resume Upload
+        $ResumeField = UploadField::create('Resume')->setTitle('Resume');
+        $ResumeField->getValidator()->allowedExtensions = array('pdf', 'doc', 'docx');
+        $ResumeField->setFolderName('Uploads/Resumes');
+        $ResumeField->setConfig('allowedMaxFileNumber', 1);
+        $ResumeField->setCanAttachExisting(false);
+        $ResumeField->setCanPreviewFolder(false);
+        $ResumeField->relationAutoSetting = false;
 
-	// formattedDate
-	public function getNiceDate() {
-		return $this->obj('Created')->Format('M j Y g:i a');
-	}
+        $fields = FieldList::create(
+            TextField::create('FirstName', 'First Name')
+                ->setAttribute('required', true),
+            TextField::create('LastName', 'Last Name')
+                ->setAttribute('required', true),
+            EmailField::create('Email')
+                ->setAttribute('required', true),
+            TextField::create('Phone')
+                ->setAttribute('required', true),
+            DateField::create('Available', 'Date Available')
+                ->setConfig('showcalendar', true),
+            $ResumeField,
+            HiddenField::create('JobID')
+                ->setValue($this->getJobID())
+        );
 
-	public function getFrontEndFields($params = null) {
+        $this->extend('updateFrontEndFields', $fields);
 
-		// Resume Upload
-		$ResumeField = UploadField::create('Resume')->setTitle('Resume');
-		$ResumeField->getValidator()->allowedExtensions = array('pdf', 'doc', 'docx');
-		$ResumeField->setFolderName('Uploads/Resumes');
-		$ResumeField->setConfig('allowedMaxFileNumber', 1);
-		$ResumeField->setCanAttachExisting(false);
-		$ResumeField->setCanPreviewFolder(false);
-		$ResumeField->relationAutoSetting = false;
+        return $fields;
+    }
 
-		$fields = FieldList::create(
-			TextField::create('FirstName', 'First Name')
-				->setAttribute('required', true),
-			TextField::create('LastName', 'Last Name')
-				->setAttribute('required', true),
-			EmailField::create('Email')
-				->setAttribute('required', true),
-			TextField::create('Phone')
-				->setAttribute('required', true),
-			DateField::create('Available', 'Date Available')
-				->setConfig('showcalendar', true),
-			$ResumeField,
-			HiddenField::create('JobID')
-				->setValue($this->getJobID())
-		);
+    /**
+     * @return RequiredFields
+     */
+    public function getRequiredFields()
+    {
+        return new RequiredFields(array(
+            'FirstName',
+            'LastName',
+            'Email',
+            'Phone'
+        ));
+    }
 
-		$this->extend('updateFrontEndFields', $fields);
+    /**
+     * @return FieldList
+     */
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
 
-		return $fields;
-	}
+        $fields->removeByName([
+            'JobID',
+        ]);
 
-	public function getJobID(){
-		$controller = Controller::curr();
-		$request = $controller->Request;
-		$params = $request->allParams();
-	}
+        $JobsField = DropdownField::create('JobID', 'Job', Job::get()->map('ID', 'Title'))
+            ->setEmptyString('--Select--');
 
-	// Required fields
-	public function getRequiredFields() {
-		return new RequiredFields(array(
-			'FirstName',
-			'LastName',
-			'Email',
-			'Phone'
-		));
-	}
+        $fields->addFieldsToTab('Root.Main', array(
+            ReadonlyField::create('JobTitle', 'Job', $this->Job()->getTitle()),
+            new TextField('FirstName'),
+            new TextField('LastName'),
+            new EmailField('Email'),
+            new TextField('Phone'),
+            new DateField('Available'),
+            new UploadField('Resume')));
 
-	public function getCMSFields() {
-		$fields = parent::getCMSFields();
-
-		// Jobs dropdown
-		$JobsField = new DropdownField('JobID', 'Job', Job::get()->map('ID', 'Title'));
-		$JobsField->setEmptyString('--Select--');
-
-		$fields->addFieldsToTab('Root.Main', array(
-			$JobsField,
-			new TextField('FirstName'),
-			new TextField('LastName'),
-			new StateDropdownField('State', 'State'),
-			new EmailField('Email'),
-			new TextField('Phone'),
-			new DateField('Available'),
-			new UploadField('Resume')));
-
-		$fields->extend('updateCMSFields', $fields);
-		return $fields;
-	}
-
-	public function getPresentAddress(){
-		return sprintf('%s, %s, %s, %s %s',
-			$this->Address,
-			$this->Address2,
-			$this->owner->City,
-			$this->owner->State,
-			$this->owner->Postcode);
-	}
-
-	public function getPermanentAddress(){
-		return sprintf('%s, %s, %s, %s %s',
-			$this->Address2a,
-			$this->Address2b,
-			$this->owner->City2,
-			$this->owner->State2,
-			$this->owner->Postcode2);
-	}
-
+        return $fields;
+    }
 }
