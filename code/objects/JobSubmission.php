@@ -26,6 +26,7 @@ class JobSubmission extends DataObject
         'Email' => 'Varchar(255)',
         'Phone' => 'Varchar(255)',
         'Available' => 'Date',
+        'Content' => 'HTMLText',
     );
 
     /**
@@ -107,8 +108,9 @@ class JobSubmission extends DataObject
             DateField::create('Available', 'Date Available')
                 ->setConfig('showcalendar', true),
             $ResumeField,
+            SimpleHtmlEditorField::create('Content', 'Cover Letter'),
             HiddenField::create('JobID')
-                ->setValue($this->getJobID())
+                ->setValue($this->getCurrentJob())
         );
 
         $this->extend('updateFrontEndFields', $fields);
@@ -153,5 +155,11 @@ class JobSubmission extends DataObject
             new UploadField('Resume')));
 
         return $fields;
+    }
+
+    public function getCurrentJob(){
+        $controller = Controller::curr();
+        $request = $controller->Request;
+        $params = $request->allParams();
     }
 }
