@@ -51,9 +51,13 @@ class JobHolder extends HolderPage{
 
 	// custom gets
 	public function getPostedJobs() {
-		return Job::get()
-			->filter(array('PostDate:GreaterThanOrEqual' => date('Y-m-d')))
+		$jobs = Job::get()
+			->filter([
+			    'PostDate:LessThanOrEqual' => date('Y-m-d'),
+                'EndPostDate:GreaterThanOrEqual' => date('Y-m-d'),
+            ])
 			->sort('PostDate DESC');
+        return $jobs;
 	}
 
 }

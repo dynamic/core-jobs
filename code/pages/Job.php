@@ -1,294 +1,323 @@
 <?php
 
-class Job extends DetailPage{
+class Job extends Page
+{
+    /**
+     * @var string
+     */
+    private static $singular_name = 'Job';
 
-	private static $singular_name = 'Job';
-	private static $plural_name = 'Jobs';
-	private static $description = 'Job detail page allowing for application submissions';
+    /**
+     * @var string
+     */
+    private static $plural_name = 'Jobs';
 
-	public static $listing_page_class = 'JobHolder';
-	private static $default_parent = 'JobHolder';
-	private static $can_be_root = false;
+    /**
+     * @var string
+     */
+    private static $description = 'Job detail page allowing for application submissions';
 
-	private static $db = array(
-		'PositionType' => "Enum('Full-time, Part-time, Freelance, Internship')",
-		'PostDate' => 'Date',
-		'EndPostDate' => 'Date',
-		'Experience' => 'Varchar(200)'
-	);
+    /**
+     * @var array
+     */
+    private static $db = array(
+        'PositionType' => "Enum('Full-time, Part-time, Freelance, Internship')",
+        'PostDate' => 'Date',
+        'EndPostDate' => 'Date',
+        'ResponsibilitiesTitle' => 'Varchar(255)',
+        'Responsibilities' => 'HTMLText',
+        'DutiesTitle' => 'Varchar(255)',
+        'Duties' => 'HTMLText',
+        'SkillsTitle' => 'Varchar(255)',
+        'Skills' => 'HTMLText',
+        'ExperienceTitle' => 'Varchar(255)',
+        'Experience' => 'HTMLText',
+        'RequirementsTitle' => 'Varchar(255',
+        'Requirements' => 'HTMLText',
+    );
 
-	private static $has_many = array(
-		'Submissions' => 'JobSubmission'
-	);
+    /**
+     * @var array
+     */
+    private static $has_many = array(
+        'Submissions' => 'JobSubmission'
+    );
 
-	private static $many_many = array(
-		'Tags' => 'Tag',
-		'Requirements' => 'JobRequirement',
-		'Skills' => 'JobSkill',
-		'Responsibilities' => 'JobResponsibility'
-	);
+    /**
+     * @var array
+     */
+    private static $many_many = array(
+        'Categories' => 'JobCategory',
+    );
 
-	private static $many_many_extraFields = array(
-		'Requirements' => array(
-			'SortOrder' => 'Int'
-		),
-		'Skills' => array(
-			'SortOrder' => 'Int'
-		),
-		'Responsibilities' => array(
-			'SortOrder' => 'Int'
-		)
-	);
+    /**
+     * @var array
+     */
+    private static $many_many_extraFields = array(
+        'Categories' => array(
+            'Sort' => 'Int'
+        ),
+    );
 
-	private static $belongs_many_many = array();
+    /**
+     * @var string
+     */
+    private static $default_parent = 'JobHolder';
 
-	private static $casting = array();
-	private static $defaults = null;
-	private static $default_sort = null;
+    /**
+     * @var bool
+     */
+    private static $can_be_root = false;
 
-	private static $summary_fields = null;
-	private static $searchable_fields = null;
-	private static $field_labels = null;
-	private static $indexes = null;
+    /**
+     *
+     */
+    public function populateDefaults()
+    {
+        $this->PostDate = date('Y-m-d');
+        $this->ResponsibilitiesTitle = 'Responsibilities';
+        $this->DutiesTitle = 'Duties';
+        $this->SkillsTitle = 'Skills';
+        $this->ExperienceTitle = 'Experience';
+        $this->RequirementsTitle = 'Requirements';
 
-	public function populateDefaults() {
-	    $this->PostDate = date('Y-m-d');
-	    parent::populateDefaults();
-	}
+        parent::populateDefaults();
+    }
 
-	public function getCMSFields(){
-		$fields = parent::getCMSFields();
+    /**
+     * @return FieldList
+     */
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
 
-		// calendar fields
-		$PostDate = DateField::create('PostDate', 'Position Post Date')
-			->setConfig('showcalendar', true)
-			->setConfig('dateformat', 'MMM dd, YYYY');
-		$endPostDate = DateField::create('EndPostDate', 'Position Post End Date')
-			->setConfig('showcalendar', true)
-			->setConfig('dateformat', 'MMM dd, YYYY');
+        $fields->addFieldsToTab('Root.Details.Info', [
+            DropdownField::create(
+                'PositionType',
+                'Position Type',
+                singleton('Job')->dbObject('PositionType')->enumValues()
+            )->setEmptyString('--select--'),
+            DateField::create('PostDate', 'Position Post Date')
+                ->setConfig('showcalendar', true),
+            DateField::create('EndPostDate', 'Position Post End Date')
+                ->setConfig('showcalendar', true),
+        ]);
 
-		$requirementsConfig = GridFieldConfig_RelationEditor::create();
-		$requirementsConfig->addComponent(new GridFieldSortableRows("SortOrder"));
-		if(class_exists('GridFieldManyRelationHandler')){
-			$requirementsConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
-			$requirementsConfig->addComponent(new GridFieldManyRelationHandler());
-		}
+        $fields->addFieldsToTab('Root.Details.Responsibilities', [
+            TextField::create('ResponsibilitiesTitle', 'Section Title'),
+            HtmlEditorField::create('Responsibilities'),
+        ]);
 
-		$requirementsGrid = new GridField(
-			'Requirements',
-			'Job Requirements',
-			$this->Requirements()->sort('SortOrder'),
-			$requirementsConfig
-		);
+        $fields->addFieldsToTab('Root.Details.Duties', [
+            TextField::create('DutiesTitle', 'Section Title'),
+            HtmlEditorField::create('Duties'),
+        ]);
 
-		$skillsConfig = GridFieldConfig_RelationEditor::create();
-		$skillsConfig->addComponent(new GridFieldSortableRows("SortOrder"));
-		if(class_exists('GridFieldManyRelationHandler')){
-			$skillsConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
-			$skillsConfig->addComponent(new GridFieldManyRelationHandler());
-		}
+        $fields->addFieldsToTab('Root.Details.Skills', [
+            TextField::create('SkillsTitle', 'Section Title'),
+            HtmlEditorField::create('Skills'),
+        ]);
 
-		$skillsGrid = new GridField(
-			'Skills',
-			'Job Skills',
-			$this->Skills()->sort('SortOrder'),
-			$skillsConfig
-		);
+        $fields->addFieldsToTab('Root.Details.Experience', [
+            TextField::create('ExperienceTitle', 'Section Title'),
+            HtmlEditorField::create('Experience'),
+        ]);
 
-		$responsibilitiesConfig = GridFieldConfig_RelationEditor::create();
-		$responsibilitiesConfig->addComponent(new GridFieldSortableRows("SortOrder"));
-		if(class_exists('GridFieldManyRelationHandler')){
-			$responsibilitiesConfig->removeComponentsByType('GridFieldAddExistingAutocompleter');
-			$responsibilitiesConfig->addComponent(new GridFieldManyRelationHandler());
-		}
+        $fields->addFieldsToTab('Root.Details.Requirements', [
+            TextField::create('RequirementsTitle', 'Section Title'),
+            HtmlEditorField::create('Requirements'),
+        ]);
 
-		$responsibilitiesGrid = new GridField(
-			'Responsibilities',
-			'Job Responsibilities',
-			$this->Responsibilities()->sort('SortOrder'),
-			$responsibilitiesConfig
-		);
+        return $fields;
+    }
 
+    /**
+     * @return ValidationResult
+     */
+    public function validate()
+    {
+        $result = parent::validate();
 
-		$fields->addFieldsToTab(
-			"Root.JobDetails",
-			array(
-				new HeaderField(
-					'JobType',
-					'Position Details',
-					3
-				),
-				DropdownField::create(
-					'PositionType',
-					'Position Type',
-					singleton('Job')->dbObject('PositionType')->enumValues()
-				)->setEmptyString('--select--'),
-				$PostDate,
-				$endPostDate
-			)
-		);
+        /*if($this->Country == 'DE' && $this->Postcode && strlen($this->Postcode) != 5) {
+            $result->error('Need five digits for German postcodes');
+        }*/
 
-		$fields->addFieldToTab(
-			'Root.JobRequirements',
-			$requirementsGrid
-		);
-		$fields->addFieldToTab(
-			'Root.JobSkills',
-			$skillsGrid
-		);
-		$fields->addFieldToTab(
-			'Root.JobResponsibilities',
-			$responsibilitiesGrid
-		);
+        return $result;
+    }
 
-		$this->extend('updateCMSFields', $fields);
+    /**
+     * @return bool
+     */
+    public function getPosted()
+    {
+        if ($this->PostDate) {
+            return $this->obj('PostDate')->NiceUS();
+        }
+        return false;
+    }
 
-		return $fields;
-	}
+    /**
+     * @return string
+     */
+    public function getApplyButton()
+    {
+        $apply = '<button type="submit" class="job-apply" onclick="parent.location=\''.
+            $this->Link().
+            'apply\'">Apply for this position</button>';
+        if ($this->parent()->Application()->ID!=0) {
+            $download = $this->parent()->Application()->URL;
+            $apply.=" or <a href=\"$download\" target=\"_blank\">Download the Application</a>";
+        }
+        $apply.="";
+        return $apply;
+    }
 
-	public function validate(){
-		$result = parent::validate();
+    /**
+     * @return mixed
+     */
+    public function getRequirementList()
+    {
+        return $this->Requirements()->sort('SortOrder');
+    }
 
-		/*if($this->Country == 'DE' && $this->Postcode && strlen($this->Postcode) != 5) {
-			$result->error('Need five digits for German postcodes');
-		}*/
+    /**
+     * @return mixed
+     */
+    public function getSkillList()
+    {
+        return $this->Skills()->sort('SortOrder');
+    }
 
-		return $result;
-	}
+    /**
+     * @return mixed
+     */
+    public function getResponsibilityList()
+    {
+        return $this->Responsibilities()->sort('SortOrder');
+    }
 
-	// Dates
-	public function getPosted() {
-		if ($this->PostDate) return $this->obj('PostDate')->NiceUS();
-		return false;
-	}
+    /**
+     * @return mixed
+     */
+    public function ApplicationLink()
+    {
+        return $this->parent()->Application()->URL;
+    }
 
-	// Apply Button
-	public function getApplyButton() {
-		$apply = '<button type="submit" class="job-apply" onclick="parent.location=\''.
-			$this->Link().
-			'apply\'">Apply for this position</button>';
-		if($this->parent()->Application()->ID!=0){
-			$download = $this->parent()->Application()->URL;
-			$apply.=" or <a href=\"$download\" target=\"_blank\">Download the Application</a>";
-		}
-		$apply.="";
-		return $apply;
-	}
-
-	// return Requirements in order
-	public function getRequirementList() {
-		return $this->Requirements()->sort('SortOrder');
-	}
-
-	// return Skills in order
-	public function getSkillList() {
-		return $this->Skills()->sort('SortOrder');
-	}
-
-	// return Responsibilities in order
-	public function getResponsibilityList() {
-		return $this->Responsibilities()->sort('SortOrder');
-	}
-
-	public function ApplicationLink(){
-		return $this->parent()->Application()->URL;
-	}
-
-	public function getTags(){
-		return $this->Tags();
-	}
-
+    /**
+     * @return mixed
+     */
+    public function getTags()
+    {
+        return $this->Tags();
+    }
 }
 
-class Job_Controller extends DetailPage_Controller{
+class Job_Controller extends Page_Controller
+{
+    /*
+     *
+     */
+    private static $allowed_actions = array(
+        'apply',
+        'JobApp',
+        'complete');
 
-	private static $allowed_actions = array(
-		'apply',
-		'JobApp',
-		'complete');
+    /**
+     *
+     */
+    public function init()
+    {
+        parent::init();
 
-	public function init() {
-		parent::init();
+        Requirements::css('jobs/css/job.css');
+    }
 
-		Requirements::css('jobs/css/job.css');
+    /**
+     * @return ViewableData_Customised
+     */
+    public function apply()
+    {
+        $Form = $this->JobApp();
 
-	}
+        $Form->Fields()->insertBefore(
+            ReadOnlyField::create(
+                'PositionName',
+                'Position',
+                $this->getTitle()
+            ),
+            'Available'
+        );
+        $Form->Fields()->push(HiddenField::create('JobID', 'JobID', $this->ID));
 
-	public function apply() {
+        $page = $this->customise(array(
+            'Form' => $Form
+        ))/*->renderWith(array('Page', 'Page'))*/;
 
-		$Form = $this->JobApp();
+        return $page;
+    }
 
-		$Form->Fields()->insertBefore(
-			ReadOnlyField::create(
-				'PositionName',
-				'Position',
-				$this->getTitle()
-			),
-			'Available'
-		);
-		$Form->Fields()->push(HiddenField::create('JobID', 'JobID', $this->ID));
+    /**
+     * @return static
+     */
+    public function JobApp()
+    {
+        $App = singleton('JobSubmission');
 
-		$page = $this->customise(array(
-			'Form' => $Form
-		))/*->renderWith(array('Page', 'Page'))*/;
+        $fields = $App->getFrontEndFields();
 
-		return $page;
+        $actions = FieldList::create(
+            new FormAction('doApply', 'Apply')
+        );
 
-	}
+        $required = $App->getRequiredFields();
 
-	public function JobApp() {
-
-		$App = singleton('JobSubmission');
-
-		$fields = $App->getFrontEndFields();
-
-		$actions = FieldList::create(
-			new FormAction('doApply', 'Apply')
-		);
-
-		$required = $App->getRequiredFields();
-
-		$required = new RequiredFields(array(
-			'FirstName',
-			'LastName',
-			'Email',
-			'Phone'));
+        $required = new RequiredFields(array(
+            'FirstName',
+            'LastName',
+            'Email',
+            'Phone'));
 
 
-		return Form::create($this, "JobApp", $fields, $actions, $required);
+        return Form::create($this, "JobApp", $fields, $actions, $required);
+    }
 
-	}
+    /**
+     * @param $data
+     * @param $form
+     */
+    public function doApply($data, $form)
+    {
+        $entry = new JobSubmission();
+        $form->saveInto($entry);
 
-	public function doApply($data, $form){
+        $entry->JobID = $this->ID;
 
-		$entry = new JobSubmission();
-		$form->saveInto($entry);
+        if ($entry->write()) {
+            $to = $this->parent()->EmailRecipient;
+            $from = $this->parent()->FromAddress;
+            $subject = $this->parent()->EmailSubject;
+            $body = $this->parent()->EmailMessage;
 
-		$entry->JobID = $this->ID;
+            $email = new Email($from, $to, $subject, $body);
+            $email->setTemplate('JobSubmission');
 
-        if($entry->write()){
-	        $to = $this->parent()->EmailRecipient;
-	        $from = $this->parent()->FromAddress;
-	        $subject = $this->parent()->EmailSubject;
-	        $body = $this->parent()->EmailMessage;
+            $email->populateTemplate(
+                JobSubmission::get()
+                ->byID($entry->ID)
+            );
 
-	        $email = new Email($from,$to,$subject,$body);
-	        $email->setTemplate('JobSubmission');
+            $email->send();
 
-	        $email->populateTemplate(
-	        	JobSubmission::get()
-	        	->byID($entry->ID)
-	        );
-
-	        $email->send();
-
-	        $this->redirect(Controller::join_links($this->Link(), 'complete'));
+            $this->redirect(Controller::join_links($this->Link(), 'complete'));
         }
+    }
 
-	}
-
-	public function complete() {
-		return $this->customise(array());
-	}
-
+    /**
+     * @return ViewableData_Customised
+     */
+    public function complete()
+    {
+        return $this->customise(array());
+    }
 }

@@ -11,15 +11,20 @@
     }
   ],
   "require": {
-    "dynamic/core": "2.0.x-dev"
+    "silverstripe/framework": "^3.2",
+    "silverstripe/cms": "^3.2"
   },
   "authors": [
     {
-      "name": "Dynamic Inc",
+      "name": "Dynamic",
+      "email": "dev@dynamicagency.com",
       "homepage": "http://dynamicagency.com"
     }
   ],
   "extra": {
-    "installer-name": "core-jobs"
+    "installer-name": "core-jobs",
+    "branch-alias": {
+      "master": "2.0.x-dev"
+    }
   }
 }
