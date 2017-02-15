@@ -1,6 +1,6 @@
 <?php
 
-class JobCategory extends Tag {
+class JobCategory extends DataObject {
 
 	private static $belongs_many_many = array(
 		'Jobs' => 'Job'
