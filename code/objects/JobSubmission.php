@@ -37,14 +37,10 @@ class JobSubmission extends DataObject
         'Resume' => 'File'
     );
 
-    private static $default_sort = 'Created DESC';
-
     /**
-     * @var array
+     * @var string
      */
-    private static $casting = array(
-        "CreatedLabel" => "Text"
-    );
+    private static $default_sort = 'Created DESC';
 
     /**
      * @var array
@@ -76,6 +72,9 @@ class JobSubmission extends DataObject
         }
     }
 
+    /**
+     * @return string
+     */
     public function getTitle()
     {
         return $this->getName();
@@ -127,7 +126,8 @@ class JobSubmission extends DataObject
             'FirstName',
             'LastName',
             'Email',
-            'Phone'
+            'Phone',
+            'Resume',
         ));
     }
 
@@ -142,24 +142,69 @@ class JobSubmission extends DataObject
             'JobID',
         ]);
 
-        $JobsField = DropdownField::create('JobID', 'Job', Job::get()->map('ID', 'Title'))
-            ->setEmptyString('--Select--');
-
-        $fields->addFieldsToTab('Root.Main', array(
+        $fields->insertBefore(
             ReadonlyField::create('JobTitle', 'Job', $this->Job()->getTitle()),
-            new TextField('FirstName'),
-            new TextField('LastName'),
-            new EmailField('Email'),
-            new TextField('Phone'),
-            new DateField('Available'),
-            new UploadField('Resume')));
+            'Content'
+        );
+
+        $fields->insertBefore(
+            ReadonlyField::create('Created', 'Application Date', $this->dbObject('Created')->FormatFromSettings()),
+            'Content'
+        );
+
+        $resume = $fields->dataFieldByName('Resume')
+            ->setFolderName('Uploads/Resumes');
+        $fields->insertBefore($resume, 'Content');
 
         return $fields;
     }
 
+    /**
+     *
+     */
     public function getCurrentJob(){
         $controller = Controller::curr();
         $request = $controller->Request;
         $params = $request->allParams();
+    }
+
+    /**
+     * @param null $member
+     *
+     * @return bool|int
+     */
+    public function canEdit($member = null)
+    {
+        return Permission::check('Job_EDIT', 'any', $member);
+    }
+
+    /**
+     * @param null $member
+     *
+     * @return bool|int
+     */
+    public function canDelete($member = null)
+    {
+        return Permission::check('Job_DELETE', 'any', $member);
+    }
+
+    /**
+     * @param null $member
+     *
+     * @return bool|int
+     */
+    public function canCreate($member = null)
+    {
+        return Permission::check('Job_CREATE', 'any', $member);
+    }
+
+    /**
+     * @param null $member
+     *
+     * @return bool
+     */
+    public function canView($member = null)
+    {
+        return true;
     }
 }

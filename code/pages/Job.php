@@ -1,6 +1,6 @@
 <?php
 
-class Job extends Page
+class Job extends Page implements PermissionProvider
 {
     /**
      * @var string
@@ -212,6 +212,58 @@ class Job extends Page
     public function getCategoryList()
     {
         return $this->Categories()->sort('Sort');
+    }
+
+    /**
+     * @return array
+     */
+    public function providePermissions()
+    {
+        return array(
+            'Job_EDIT' => 'Edit a Job',
+            'Job_DELETE' => 'Delete a Job',
+            'Job_CREATE' => 'Create a Job',
+        );
+    }
+
+    /**
+     * @param null $member
+     *
+     * @return bool|int
+     */
+    public function canEdit($member = null)
+    {
+        return Permission::check('Job_EDIT', 'any', $member);
+    }
+
+    /**
+     * @param null $member
+     *
+     * @return bool|int
+     */
+    public function canDelete($member = null)
+    {
+        return Permission::check('Job_DELETE', 'any', $member);
+    }
+
+    /**
+     * @param null $member
+     *
+     * @return bool|int
+     */
+    public function canCreate($member = null)
+    {
+        return Permission::check('Job_CREATE', 'any', $member);
+    }
+
+    /**
+     * @param null $member
+     *
+     * @return bool
+     */
+    public function canView($member = null)
+    {
+        return true;
     }
 }
 
