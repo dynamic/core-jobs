@@ -1,1 +1,24 @@
-SilverStripe module to create a Job Listing area of a website. Includes filtering by category or type, integrated online application.
+# silverstripe jobs
+
+[![Build Status](https://travis-ci.com/dynamic/chard-international.svg?token=hFT1sXd4nNmguE972zHN&branch=master)](https://travis-ci.com/dynamic/chard-international)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/dynamic/chard-international/badges/quality-score.png?b=master&s=cf977ba67e35b4f0bec4f69955647781e1f25dd9)](https://scrutinizer-ci.com/g/dynamic/chard-international/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/dynamic/chard-international/badges/coverage.png?b=master&s=9b6aab4d60ecac9c0118dac3d89f674085355c3f)](https://scrutinizer-ci.com/g/dynamic/chard-international/?branch=master)
+[![codecov](https://codecov.io/gh/dynamic/chard-international/branch/master/graph/badge.svg?token=Cp7MWvZzhN)](https://codecov.io/gh/dynamic/chard-international)
+
+A simple jobs module for SilverStripe. Schedule posts, filter by type or category.
+
+## Requirements
+
+- SilverStripe 3.4
+
+## Installation
+
+This is how you install core jobs.
+
+## Example usage
+
+You use core-jobs like this.
+
+## Documentation
+
+See the [docs/en](docs/en/index.md) folder.

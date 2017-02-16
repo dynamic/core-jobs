@@ -158,7 +158,7 @@ class Job extends Page implements PermissionProvider
                 $config->addComponent(new GridFieldAddExistingSearchButton());
             }
             $categories = $this->Categories()->sort('Sort');
-            $categoriesField = GridField::create('Spiffs', 'Spiffs', $categories, $config);
+            $categoriesField = GridField::create('Categories', 'Categories', $categories, $config);
             $fields->addFieldsToTab('Root.Details.Categories', array(
                 $categoriesField,
             ));
@@ -168,54 +168,26 @@ class Job extends Page implements PermissionProvider
     }
 
     /**
-     * @return ValidationResult
-     */
-    public function validate()
-    {
-        $result = parent::validate();
-
-        /*if($this->Country == 'DE' && $this->Postcode && strlen($this->Postcode) != 5) {
-            $result->error('Need five digits for German postcodes');
-        }*/
-
-        return $result;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getPosted()
-    {
-        if ($this->PostDate) {
-            return $this->obj('PostDate')->NiceUS();
-        }
-        return false;
-    }
-
-    /**
      * @return string
      */
     public function getApplyButton()
     {
-        $apply = '<button type="submit" class="job-apply" onclick="parent.location=\''.
-            $this->Link().
-            'apply\'">Apply for this position</button>';
-
-        if ($this->parent()->Application()->ID != 0) {
-            $download = $this->parent()->Application()->URL;
-            $apply.=" or <a href=\"$download\" target=\"_blank\">Download the Application</a>";
-        }
-        $apply .= "";
-
+        $apply = Controller::join_links(
+            $this->Link(),
+            'apply'
+        );
         return $apply;
     }
 
     /**
      * @return mixed
      */
-    public function ApplicationLink()
+    public function getApplicationLink()
     {
-        return $this->parent()->Application()->URL;
+        if ($this->parent()->Application()->ID != 0) {
+            return $this->parent()->Application()->URL;
+        }
+        return false;
     }
 
     /**
