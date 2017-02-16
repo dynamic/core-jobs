@@ -15,7 +15,7 @@ class JobHolder extends Page
     /**
      * @var string
      */
-    private static $description = 'Page allowing for and showing job detail pages';
+    private static $description = 'display a list of available jobs';
 
     /**
      * @var array
@@ -42,9 +42,7 @@ class JobHolder extends Page
     /**
      * @var array
      */
-    private static $allowed_children = array(
-        'Job'
-    );
+    private static $allowed_children = array('Job');
 
     /**
      * @return FieldList
@@ -55,7 +53,6 @@ class JobHolder extends Page
 
         $app = new UploadField('Application', 'Application Form');
         $app->allowedExtensions = array('pdf','PDF');
-
         $fields->addFieldToTab('Root.ApplicationFile', $app);
 
         $fields->addFieldsToTab('Root.Configuration', array(
