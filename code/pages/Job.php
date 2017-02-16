@@ -24,25 +24,14 @@ class Job extends Page implements PermissionProvider
         'PositionType' => "Enum('Full-time, Part-time, Freelance, Internship')",
         'PostDate' => 'Date',
         'EndPostDate' => 'Date',
-        'ResponsibilitiesTitle' => 'Varchar(255)',
-        'Responsibilities' => 'HTMLText',
-        'DutiesTitle' => 'Varchar(255)',
-        'Duties' => 'HTMLText',
-        'SkillsTitle' => 'Varchar(255)',
-        'Skills' => 'HTMLText',
-        'ExperienceTitle' => 'Varchar(255)',
-        'Experience' => 'HTMLText',
-        'RequirementsTitle' => 'Varchar(255',
-        'Requirements' => 'HTMLText',
-        'SalaryTitle' => 'Varchar(255)',
-        'Salary' => 'HTMLText',
     );
 
     /**
      * @var array
      */
     private static $has_many = array(
-        'Submissions' => 'JobSubmission'
+        'Sections' => 'JobSection',
+        'Submissions' => 'JobSubmission',
     );
 
     /**
@@ -89,12 +78,6 @@ class Job extends Page implements PermissionProvider
     public function populateDefaults()
     {
         $this->PostDate = date('Y-m-d');
-        $this->ResponsibilitiesTitle = 'Responsibilities';
-        $this->DutiesTitle = 'Duties';
-        $this->SkillsTitle = 'Skills';
-        $this->ExperienceTitle = 'Experience';
-        $this->RequirementsTitle = 'Requirements';
-        $this->SalaryTitle = 'Salary and Benefits';
 
         parent::populateDefaults();
     }
@@ -118,37 +101,22 @@ class Job extends Page implements PermissionProvider
                 ->setConfig('showcalendar', true),
         ]);
 
-        $fields->addFieldsToTab('Root.Details.Responsibilities', [
-            TextField::create('ResponsibilitiesTitle', 'Section Title'),
-            HtmlEditorField::create('Responsibilities'),
-        ]);
-
-        $fields->addFieldsToTab('Root.Details.Duties', [
-            TextField::create('DutiesTitle', 'Section Title'),
-            HtmlEditorField::create('Duties'),
-        ]);
-
-        $fields->addFieldsToTab('Root.Details.Skills', [
-            TextField::create('SkillsTitle', 'Section Title'),
-            HtmlEditorField::create('Skills'),
-        ]);
-
-        $fields->addFieldsToTab('Root.Details.Experience', [
-            TextField::create('ExperienceTitle', 'Section Title'),
-            HtmlEditorField::create('Experience'),
-        ]);
-
-        $fields->addFieldsToTab('Root.Details.Requirements', [
-            TextField::create('RequirementsTitle', 'Section Title'),
-            HtmlEditorField::create('Requirements'),
-        ]);
-
-        $fields->addFieldsToTab('Root.Details.Salary', [
-            TextField::create('SalaryTitle', 'Section Title'),
-            HtmlEditorField::create('Salary'),
-        ]);
-
         if ($this->ID) {
+            // sections
+            $config = GridFieldConfig_RelationEditor::create();
+            if (class_exists('GridFieldOrderableRows')) {
+                $config->addComponent(new GridFieldOrderableRows('Sort'));
+            }
+            $config->removeComponentsByType('GridFieldAddExistingAutocompleter');
+            $config->removeComponentsByType('GridFieldDeleteAction');
+            $config->addComponent(new GridFieldDeleteAction(false));
+            $sections = $this->Sections()->sort('Sort');
+            $sectionsField = GridField::create('Sections', 'Sections', $sections, $config);
+            $fields->addFieldsToTab('Root.Details.Sections', array(
+                $sectionsField,
+            ));
+
+            // categories
             $config = GridFieldConfig_RelationEditor::create();
             if (class_exists('GridFieldOrderableRows')) {
                 $config->addComponent(new GridFieldOrderableRows('Sort'));
@@ -285,13 +253,13 @@ class Job_Controller extends Page_Controller
                 'Position',
                 $this->getTitle()
             ),
-            'Available'
+            'FirstName'
         );
         $Form->Fields()->push(HiddenField::create('JobID', 'JobID', $this->ID));
 
         $page = $this->customise(array(
             'Form' => $Form
-        ))/*->renderWith(array('Page', 'Page'))*/;
+        ));
 
         return $page;
     }

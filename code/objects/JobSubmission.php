@@ -5,12 +5,12 @@ class JobSubmission extends DataObject
     /**
      * @var string
      */
-    private static $singular_name = 'Application';
+    private static $singular_name = 'Job Application';
 
     /**
      * @var string
      */
-    private static $plural_name = 'Applications';
+    private static $plural_name = 'Job Applications';
 
     /**
      * @var string
@@ -55,9 +55,24 @@ class JobSubmission extends DataObject
      * @var array
      */
     private static $searchable_fields = array(
-        'FirstName',
-        'LastName',
-        'Job.ID'
+        'FirstName' => [
+            'title' => 'First',
+        ],
+        'LastName' => [
+            'title' => 'Last',
+        ],
+        'Job.ID' => [
+            'title' => 'Job',
+        ],
+        'Email' => [
+            'title' => 'Email',
+        ],
+        'Phone' => [
+            'title' => 'Phone',
+        ],
+        'Content' => [
+            'title' => 'Cover Letter',
+        ],
     );
 
     /**
@@ -107,9 +122,7 @@ class JobSubmission extends DataObject
             DateField::create('Available', 'Date Available')
                 ->setConfig('showcalendar', true),
             $ResumeField,
-            SimpleHtmlEditorField::create('Content', 'Cover Letter'),
-            HiddenField::create('JobID')
-                ->setValue($this->getCurrentJob())
+            SimpleHtmlEditorField::create('Content', 'Cover Letter')
         );
 
         $this->extend('updateFrontEndFields', $fields);
@@ -157,15 +170,6 @@ class JobSubmission extends DataObject
         $fields->insertBefore($resume, 'Content');
 
         return $fields;
-    }
-
-    /**
-     *
-     */
-    public function getCurrentJob(){
-        $controller = Controller::curr();
-        $request = $controller->Request;
-        $params = $request->allParams();
     }
 
     /**
