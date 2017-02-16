@@ -1,0 +1,22 @@
+JobHolder:
+  default:
+    Title: 'Jobs'
+JobCategory:
+  one:
+    Title: 'Category One'
+  two:
+    Title: 'Category Two'
+Job:
+  one:
+    Title: 'Job One'
+  two:
+    Title: 'Job Two'
+JobSubmission:
+  one:
+    FirstName: 'George'
+    LastName: 'Costanza'
+    JobID: =>Job.one
+  two:
+    FirstName: 'Jorge'
+    LastName: 'Posada'
+    JobID: =>Job.two
