@@ -4,16 +4,11 @@
   "keywords": ["silverstripe", "module"],
   "license": "BSD-3-Clause",
   "type": "silverstripe-module",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/dynamic/core.git"
-    }
-  ],
   "require": {
     "silverstripe/framework": "^3.2",
     "silverstripe/cms": "^3.2",
-    "silverstripe/secureassets": "^1.1"
+    "silverstripe/secureassets": "^1.1",
+    "dynamic/silverstripe-collection": "^1.0"
   },
   "authors": [
     {

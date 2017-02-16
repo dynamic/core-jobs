@@ -17,6 +17,20 @@ class JobCategory extends DataObject
     );
 
     /**
+     * @return FieldList
+     */
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
+
+        $jobs = $fields->dataFieldByName('Jobs');
+        $config = $jobs->getConfig();
+        $config->removeComponentsByType('GridFieldAddNewButton');
+
+        return $fields;
+    }
+
+    /**
      * @param null $member
      *
      * @return bool|int

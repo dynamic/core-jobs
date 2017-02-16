@@ -62,6 +62,18 @@ class Job extends Page implements PermissionProvider
     );
 
     /**
+     * @var array
+     */
+    private static $searchable_fields = [
+        'Categories.ID' => [
+            'title' => 'Category',
+        ],
+        'PositionType' => [
+            'title' => 'Type',
+        ],
+    ];
+
+    /**
      * @var string
      */
     private static $default_parent = 'JobHolder';
