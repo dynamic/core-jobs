@@ -5,12 +5,12 @@ class JobCategory extends DataObject
     /**
      * @var string
      */
-    private static $singular_name = 'Section';
+    private static $singular_name = 'Category';
 
     /**
      * @var string
      */
-    private static $plural_name = 'Sections';
+    private static $plural_name = 'Categories';
 
     /**
      * @var array
@@ -50,9 +50,11 @@ class JobCategory extends DataObject
     {
         $fields = parent::getCMSFields();
 
-        $jobs = $fields->dataFieldByName('Jobs');
-        $config = $jobs->getConfig();
-        $config->removeComponentsByType('GridFieldAddNewButton');
+        $fields->dataFieldByName('Name')->setDescription('For internal reference only');
+
+        if ($this->ID) {
+            $jobs = $fields->dataFieldByName('Jobs')->getConfig()->removeComponentsByType('GridFieldAddNewButton');
+        }
 
         return $fields;
     }
