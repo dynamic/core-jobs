@@ -1,6 +1,6 @@
 {
   "name": "dynamic/core-jobs",
-  "description": "The Dynamic Core Jobs Module",
+  "description": "A simple jobs module for SilverStripe. Schedule posts, filter by type or category.",
   "keywords": ["silverstripe", "module"],
   "license": "BSD-3-Clause",
   "type": "silverstripe-module",
