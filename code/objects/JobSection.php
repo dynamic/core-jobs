@@ -1,6 +1,6 @@
 <?php
 
-class JobCategory extends DataObject
+class JobSection extends DataObject
 {
     /**
      * @var string
@@ -15,17 +15,24 @@ class JobCategory extends DataObject
     /**
      * @var array
      */
-    private static $db = [
+    private static $db = array(
         'Name' => 'Varchar(255)',
         'Title' => 'Varchar(255)',
-    ];
+        'Content' => 'HTMLText',
+        'Sort' => 'Int',
+    );
 
     /**
      * @var array
      */
-    private static $belongs_many_many = array(
-        'Jobs' => 'Job'
-    );
+    private static $has_one = [
+        'Job' => 'Job',
+    ];
+
+    /**
+     * @var string
+     */
+    private static $default_sort = 'Sort';
 
     /**
      * @var array
@@ -41,6 +48,7 @@ class JobCategory extends DataObject
     private static $searchable_fields = array(
         'Name',
         'Title',
+        'Content',
     );
 
     /**
@@ -50,11 +58,28 @@ class JobCategory extends DataObject
     {
         $fields = parent::getCMSFields();
 
-        $jobs = $fields->dataFieldByName('Jobs');
-        $config = $jobs->getConfig();
-        $config->removeComponentsByType('GridFieldAddNewButton');
+        $fields->removeByName([
+            'Sort',
+            'JobID',
+        ]);
+
+        $fields->dataFieldByName('Name')->setDescription('For internal reference only');
 
         return $fields;
+    }
+
+    /**
+     * @return ValidationResult
+     */
+    public function validate()
+    {
+        $result = parent::validate();
+
+        if (!$this->Name) {
+            $result->error('Name is requied before you can save');
+        }
+
+        return $result;
     }
 
     /**
