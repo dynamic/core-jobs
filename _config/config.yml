@@ -1,3 +1,8 @@
 ---
 Name: jobs
 ---
+JobHolder_Controller:
+  managed_object: Job
+  extensions:
+    - CollectionExtension
+    - JobHolderCollectionExtension
