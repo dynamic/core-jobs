@@ -227,6 +227,17 @@ class Job extends Page implements PermissionProvider
     }
 
     /**
+     * @return bool
+     */
+    public function getPrimaryCategory()
+    {
+        if ($this->Categories()->exists()) {
+            return $this->Categories()->first();
+        }
+        return false;
+    }
+
+    /**
      * @return array
      */
     public function providePermissions()
