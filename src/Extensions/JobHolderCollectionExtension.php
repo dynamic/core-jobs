@@ -1,5 +1,11 @@
 <?php
 
+namespace Dynamic\Jobs\Extensions;
+
+use SilverStripe\Core\Extension;
+use SilverStripe\Forms\Form;
+use SilverStripe\ORM\ArrayList;
+
 class JobHolderCollectionExtension extends Extension
 {
     /**
@@ -13,7 +19,7 @@ class JobHolderCollectionExtension extends Extension
     /**
      * @param $form
      */
-    public function updateCollectionForm(&$form)
+    public function updateCollectionForm(Form &$form)
     {
         $fields = $form->Fields();
         $fields->dataFieldByName('Categories__ID')
@@ -24,7 +30,7 @@ class JobHolderCollectionExtension extends Extension
      * @param $collection
      * @param $searchCriteria
      */
-    public function updateCollectionItems(&$collection, &$searchCriteria)
+    public function updateCollectionItems(ArrayList &$collection, &$searchCriteria)
     {
         $collection = $collection->filterByCallback(function ($item, $list) {
             return (

@@ -1,5 +1,12 @@
 <?php
 
+namespace Dynamic\Jobs\Model;
+
+use SilverStripe\Forms\FieldList;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\ValidationResult;
+use SilverStripe\Security\Permission;
+
 class JobSection extends DataObject
 {
     /**
@@ -26,7 +33,7 @@ class JobSection extends DataObject
      * @var array
      */
     private static $has_one = [
-        'Job' => 'Job',
+        'Job' => Job::class,
     ];
 
     /**
@@ -76,7 +83,7 @@ class JobSection extends DataObject
         $result = parent::validate();
 
         if (!$this->Name) {
-            $result->error('Name is requied before you can save');
+            $result->addError('Name is requied before you can save');
         }
 
         return $result;
@@ -107,7 +114,7 @@ class JobSection extends DataObject
      *
      * @return bool|int
      */
-    public function canCreate($member = null)
+    public function canCreate($member = null, $context = [])
     {
         return Permission::check('Job_CREATE', 'any', $member);
     }

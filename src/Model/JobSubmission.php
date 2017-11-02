@@ -1,5 +1,18 @@
 <?php
 
+namespace Dynamic\Jobs\Model;
+
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Assets\File;
+use SilverStripe\Forms\DateField;
+use SilverStripe\Forms\EmailField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Permission;
+
 class JobSubmission extends DataObject
 {
     /**
@@ -33,8 +46,8 @@ class JobSubmission extends DataObject
      * @var array
      */
     private static $has_one = array(
-        'Job' => 'Job',
-        'Resume' => 'File'
+        'Job' => Job::class,
+        'Resume' => File::class
     );
 
     /**
@@ -97,7 +110,7 @@ class JobSubmission extends DataObject
 
     /**
      * @param null $params
-     * @return static
+     * @return FieldList
      */
     public function getFrontEndFields($params = null)
     {
@@ -119,8 +132,8 @@ class JobSubmission extends DataObject
                 ->setAttribute('required', true),
             TextField::create('Phone')
                 ->setAttribute('required', true),
-            DateField::create('Available', 'Date Available')
-                ->setConfig('showcalendar', true),
+            DateField::create('Available', 'Date Available'),
+                //->setConfig('showcalendar', true),
             $ResumeField,
             SimpleHtmlEditorField::create('Content', 'Cover Letter')
         );
@@ -197,7 +210,7 @@ class JobSubmission extends DataObject
      *
      * @return bool|int
      */
-    public function canCreate($member = null)
+    public function canCreate($member = null, $contect = [])
     {
         return Permission::check('Job_CREATE', 'any', $member);
     }

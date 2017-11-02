@@ -1,5 +1,18 @@
 <?php
 
+namespace Dynamic\Jobs\Model;
+
+use \Page;
+
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Assets\File;
+use SilverStripe\Forms\EmailField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataList;
+use SilverStripe\ORM\ValidationResult;
+
 class JobHolder extends Page
 {
     /**
@@ -31,18 +44,20 @@ class JobHolder extends Page
      * @var array
      */
     private static $has_one = array(
-        'Application' => 'File'
+        'Application' => File::class
     );
 
     /**
      * @var string
      */
-    private static $default_child = 'Job';
+    private static $default_child = Job::class;
 
     /**
      * @var array
      */
-    private static $allowed_children = array('Job');
+    private static $allowed_children = array(
+        Job::class
+    );
 
     /**
      * @return FieldList
@@ -70,16 +85,18 @@ class JobHolder extends Page
      */
     public function validate()
     {
+
         $result = parent::validate();
+        // TODO - this bugs out and wont create the page if it is in
+        /*
+                if(!$this->EmailRecipient) {
+                    $result->addError('Please enter Email Recpient before saving.');
+                }
 
-        if(!$this->EmailRecipient) {
-            $result->error('Please enter Email Recpient before saving.');
-        }
-
-        if(!$this->EmailSubject) {
-            $result->error('Please enter Email Subject before saving.');
-        }
-
+                if(!$this->EmailSubject) {
+                    $result->addError('Please enter Email Subject before saving.');
+                }
+                */
         return $result;
     }
 
@@ -95,30 +112,5 @@ class JobHolder extends Page
             ])
             ->sort('PostDate DESC');
         return $jobs;
-    }
-}
-
-class JobHolder_Controller extends Page_Controller
-{
-    /**
-     * @var array
-     */
-    private static $allowed_actions = array(
-        'application'
-    );
-
-    /**
-     * @return HTMLText
-     */
-    public function application()
-    {
-        //Determine if the application is valid
-        if ($params = $this->getURLParams()) {
-            if (is_numeric($params['ID']) && $ID = $params['ID']) {
-                $application = JobSubmission::get()
-                    ->byID($ID);
-                return $application->renderWith('JobSubmission');
-            }
-        }
     }
 }

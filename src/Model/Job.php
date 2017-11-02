@@ -1,5 +1,22 @@
 <?php
 
+namespace Dynamic\Jobs\Model;
+
+use \Page;
+use SilverStripe\Control\Controller;
+use SilverStripe\Forms\DateField;
+use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldAddExistingAutocompleter;
+use SilverStripe\Forms\GridField\GridFieldConfig_RelationEditor;
+use SilverStripe\Forms\GridField\GridFieldDeleteAction;
+use SilverStripe\Security\Permission;
+use SilverStripe\Security\PermissionProvider;
+use Symbiote\GridFieldExtensions\GridFieldAddExistingSearchButton;
+use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
+
+
 class Job extends Page implements PermissionProvider
 {
     /**
@@ -30,15 +47,15 @@ class Job extends Page implements PermissionProvider
      * @var array
      */
     private static $has_many = array(
-        'Sections' => 'JobSection',
-        'Submissions' => 'JobSubmission',
+        'Sections' => JobSection::class,
+        'Submissions' => JobSubmission::class,
     );
 
     /**
      * @var array
      */
     private static $many_many = array(
-        'Categories' => 'JobCategory',
+        'Categories' => JobCategory::class,
     );
 
     /**
@@ -65,7 +82,7 @@ class Job extends Page implements PermissionProvider
     /**
      * @var string
      */
-    private static $default_parent = 'JobHolder';
+    private static $default_parent = JobHolder::class;
 
     /**
      * @var bool
@@ -93,22 +110,22 @@ class Job extends Page implements PermissionProvider
             DropdownField::create(
                 'PositionType',
                 'Position Type',
-                singleton('Job')->dbObject('PositionType')->enumValues()
+                singleton(Job::class)->dbObject('PositionType')->enumValues()
             )->setEmptyString('--select--'),
-            DateField::create('PostDate', 'Position Post Date')
-                ->setConfig('showcalendar', true),
-            DateField::create('EndPostDate', 'Position Post End Date')
-                ->setConfig('showcalendar', true),
+            DateField::create('PostDate', 'Position Post Date'),
+                //->setConfig('showcalendar', true),
+            DateField::create('EndPostDate', 'Position Post End Date'),
+                //->setConfig('showcalendar', true),
         ]);
 
         if ($this->ID) {
             // sections
             $config = GridFieldConfig_RelationEditor::create();
-            if (class_exists('GridFieldOrderableRows')) {
+            if (class_exists(GridFieldOrderableRows::class)) {
                 $config->addComponent(new GridFieldOrderableRows('Sort'));
             }
-            $config->removeComponentsByType('GridFieldAddExistingAutocompleter');
-            $config->removeComponentsByType('GridFieldDeleteAction');
+            $config->removeComponentsByType(GridFieldAddExistingAutocompleter::class);
+            $config->removeComponentsByType(GridFieldDeleteAction::class);
             $config->addComponent(new GridFieldDeleteAction(false));
             $sections = $this->Sections()->sort('Sort');
             $sectionsField = GridField::create('Sections', 'Sections', $sections, $config);
@@ -118,11 +135,11 @@ class Job extends Page implements PermissionProvider
 
             // categories
             $config = GridFieldConfig_RelationEditor::create();
-            if (class_exists('GridFieldOrderableRows')) {
+            if (class_exists(GridFieldOrderableRows::class)) {
                 $config->addComponent(new GridFieldOrderableRows('Sort'));
             }
-            if (class_exists('GridFieldAddExistingSearchButton')) {
-                $config->removeComponentsByType('GridFieldAddExistingAutocompleter');
+            if (class_exists(GridFieldAddExistingSearchButton::class)) {
+                $config->removeComponentsByType(GridFieldAddExistingAutocompleter::class);
                 $config->addComponent(new GridFieldAddExistingSearchButton());
             }
             $categories = $this->Categories()->sort('Sort');
@@ -214,7 +231,7 @@ class Job extends Page implements PermissionProvider
      *
      * @return bool|int
      */
-    public function canCreate($member = null)
+    public function canCreate($member = null, $context = [])
     {
         return Permission::check('Job_CREATE', 'any', $member);
     }
@@ -227,104 +244,5 @@ class Job extends Page implements PermissionProvider
     public function canView($member = null)
     {
         return true;
-    }
-}
-
-class Job_Controller extends Page_Controller
-{
-    /*
-     *
-     */
-    private static $allowed_actions = array(
-        'apply',
-        'JobApp',
-        'complete');
-
-    /**
-     * @return ViewableData_Customised
-     */
-    public function apply()
-    {
-        $Form = $this->JobApp();
-
-        $Form->Fields()->insertBefore(
-            ReadOnlyField::create(
-                'PositionName',
-                'Position',
-                $this->getTitle()
-            ),
-            'FirstName'
-        );
-        $Form->Fields()->push(HiddenField::create('JobID', 'JobID', $this->ID));
-
-        $page = $this->customise(array(
-            'Form' => $Form
-        ));
-
-        return $page;
-    }
-
-    /**
-     * @return static
-     */
-    public function JobApp()
-    {
-        $App = singleton('JobSubmission');
-
-        $fields = $App->getFrontEndFields();
-
-        $actions = FieldList::create(
-            new FormAction('doApply', 'Apply')
-        );
-
-        $required = $App->getRequiredFields();
-
-        $required = new RequiredFields(array(
-            'FirstName',
-            'LastName',
-            'Email',
-            'Phone'));
-
-
-        return Form::create($this, "JobApp", $fields, $actions, $required);
-    }
-
-    /**
-     * @param $data
-     * @param $form
-     */
-    public function doApply($data, $form)
-    {
-        $entry = new JobSubmission();
-        $form->saveInto($entry);
-
-        $entry->JobID = $this->ID;
-
-        if ($entry->write()) {
-            $to = $this->parent()->EmailRecipient;
-            $from = $this->parent()->FromAddress;
-            $subject = $this->parent()->EmailSubject;
-            $body = $this->parent()->EmailMessage;
-
-            $email = new Email($from, $to, $subject, $body);
-            $email->setTemplate('JobSubmission');
-
-            $email->populateTemplate(
-                JobSubmission::get()
-                ->byID($entry->ID)
-            );
-
-            $email->send();
-
-            $this->redirect(Controller::join_links($this->Link(), 'complete'));
-        }
-    }
-
-    /**
-     * @return ViewableData_Customised
-     */
-    public function complete()
-    {
-        return $this->customise(array());
     }
 }
