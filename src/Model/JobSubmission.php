@@ -2,6 +2,7 @@
 
 namespace Dynamic\Jobs\Model;
 
+use Dynamic\Jobs\Forms\SimpleHtmlEditorField;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
 use SilverStripe\Forms\DateField;
@@ -61,7 +62,7 @@ class JobSubmission extends DataObject
     private static $summary_fields = array(
         'Name' => 'Applicant',
         'Job.Title' => 'Job',
-        'Created.NiceUS' => 'Date'
+        'Created.Nice' => 'Date'
     );
 
     /**
@@ -116,12 +117,16 @@ class JobSubmission extends DataObject
     {
         // Resume Upload
         $ResumeField = UploadField::create('Resume')->setTitle('Resume');
-        $ResumeField->getValidator()->allowedExtensions = array('pdf', 'doc', 'docx');
+        $ResumeField->getValidator()->setAllowedExtensions(array(
+            'pdf',
+            'doc',
+            'docx'
+        ));
         $ResumeField->setFolderName('Uploads/Resumes');
-        $ResumeField->setConfig('allowedMaxFileNumber', 1);
-        $ResumeField->setCanAttachExisting(false);
-        $ResumeField->setCanPreviewFolder(false);
-        $ResumeField->relationAutoSetting = false;
+        // $ResumeField->setConfig('allowedMaxFileNumber', 1);
+        // $ResumeField->setCanAttachExisting(false);
+        // $ResumeField->setCanPreviewFolder(false);
+        // $ResumeField->relationAutoSetting = false;
 
         $fields = FieldList::create(
             TextField::create('FirstName', 'First Name')
@@ -133,7 +138,6 @@ class JobSubmission extends DataObject
             TextField::create('Phone')
                 ->setAttribute('required', true),
             DateField::create('Available', 'Date Available'),
-                //->setConfig('showcalendar', true),
             $ResumeField,
             SimpleHtmlEditorField::create('Content', 'Cover Letter')
         );

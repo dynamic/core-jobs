@@ -10,14 +10,14 @@
 
 	<% if $Message %><h4>$Message</h4><% end_if %>
 
-	<% if Items %>
-		<% loop Items %>
+	<% if $Children %>
+		<% loop $Children %>
 			<section class="row $EvenOdd clearfix">
-				$Summary
+				<% include Dynamic\Jobs\JobSummary %>
 			</section>
 		<% end_loop %>
 
-		<% with Items %>
+		<% with $Items %>
 			<% include Pagination %>
 		<% end_with %>
 	<% else %>
@@ -26,7 +26,7 @@
 </div>
 <div class="four columns sidebar omega">
 	<aside>
-		<% include RssLink %>
-		<% include TagList %>
+		<%-- include RssLink %>
+		<% include TagList --%>
 	</aside>
 </div>

@@ -25,7 +25,8 @@ class JobController extends PageController
     private static $allowed_actions = array(
         'apply',
         'JobApp',
-        'complete');
+        'complete'
+    );
 
     /**
      * @return ViewableData_Customised
@@ -79,7 +80,7 @@ class JobController extends PageController
      * @param $data
      * @param $form
      */
-    public function doApply($data, $form)
+    public function doApply($data, Form $form)
     {
         $entry = new JobSubmission();
         $form->saveInto($entry);
@@ -87,18 +88,17 @@ class JobController extends PageController
         $entry->JobID = $this->ID;
 
         if ($entry->write()) {
-            $to = $this->parent()->EmailRecipient;
+            $to = $entry->Email;
             $from = $this->parent()->FromAddress;
             $subject = $this->parent()->EmailSubject;
             $body = $this->parent()->EmailMessage;
 
             $email = new Email($from, $to, $subject, $body);
-            $email->setTemplate('JobSubmission');
-
-            $email->populateTemplate(
-                JobSubmission::get()
-                    ->byID($entry->ID)
-            );
+            $email->setHTMLTemplate('Dynamic\Jobs\Email\JobSubmission')
+                ->setData(
+                    JobSubmission::get()
+                        ->byID($entry->ID)
+                );
 
             $email->send();
 
