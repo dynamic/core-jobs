@@ -74,7 +74,7 @@ script:
   # php with linting
   - |
     if [[ $LINT == 1 ]]; then
-      vendor/bin/phpcs src/ tests/; fi
+      vendor/bin/phpcs src/ tests/
     fi
 
 # Upload code coverage when tests pass
