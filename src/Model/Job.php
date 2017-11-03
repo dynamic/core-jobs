@@ -16,7 +16,6 @@ use SilverStripe\Security\PermissionProvider;
 use Symbiote\GridFieldExtensions\GridFieldAddExistingSearchButton;
 use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
 
-
 class Job extends Page implements PermissionProvider
 {
     /**

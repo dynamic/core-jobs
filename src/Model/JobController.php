@@ -81,7 +81,7 @@ class JobController extends PageController
      * @param $data
      * @param $form
      */
-    public function doApply(Array $data, Form $form)
+    public function doApply(array $data, Form $form)
     {
         $entry = new JobSubmission();
         $form->saveInto($entry);

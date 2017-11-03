@@ -1,6 +1,7 @@
 <?php
 
 namespace Dynamic\Jobs\Tests;
+
 use Dynamic\Jobs\Model\JobHolder;
 use SilverStripe\Core\Injector\Injector;
 use \SilverStripe\Dev\SapphireTest;

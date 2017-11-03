@@ -34,4 +34,3 @@ class JobHolderController extends PageController
         return null;
     }
 }
-

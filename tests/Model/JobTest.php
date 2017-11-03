@@ -20,7 +20,7 @@ class JobTest extends SapphireTest
     public function testGetCMSFields()
     {
         /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
+        $object = $this->objFromFixture(Job::class, 'one');
         $fields = $object->getCMSFields();
         $this->assertInstanceOf(FieldList::class, $fields);
     }
