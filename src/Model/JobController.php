@@ -6,6 +6,7 @@ use PageController;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\FileField;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
@@ -80,15 +81,25 @@ class JobController extends PageController
      * @param $data
      * @param $form
      */
-    public function doApply($data, Form $form)
+    public function doApply(Array $data, Form $form)
     {
         $entry = new JobSubmission();
         $form->saveInto($entry);
 
         $entry->JobID = $this->ID;
 
+        // adds relation to uploaded file
+        /** @var FileField $fileField */
+        $fileField = $form->Fields()->fieldByName('Resume');
+        if ($fileField !== null) {
+            $file = $fileField->getUpload()->getFile();
+            if ($file->exists()) {
+                $entry->ResumeID = $file->ID;
+            }
+        }
+
         if ($entry->write()) {
-            $to = $entry->Email;
+            $to = $this->parent()->EmailRecipient;
             $from = $this->parent()->FromAddress;
             $subject = $this->parent()->EmailSubject;
             $body = $this->parent()->EmailMessage;

@@ -87,7 +87,7 @@ class JobHolder extends Page
     {
 
         $result = parent::validate();
-        // TODO - this bugs out and wont create the page if it is in
+        // TODO - this bugs out and won't create the page if it is in
         /*
                 if(!$this->EmailRecipient) {
                     $result->addError('Please enter Email Recpient before saving.');

@@ -3,11 +3,11 @@
 namespace Dynamic\Jobs\Model;
 
 use Dynamic\Jobs\Forms\SimpleHtmlEditorField;
-use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
 use SilverStripe\Forms\DateField;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\FileField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
@@ -116,17 +116,15 @@ class JobSubmission extends DataObject
     public function getFrontEndFields($params = null)
     {
         // Resume Upload
-        $ResumeField = UploadField::create('Resume')->setTitle('Resume');
+        $ResumeField = FileField::create('Resume')->setTitle('Resume');
         $ResumeField->getValidator()->setAllowedExtensions(array(
             'pdf',
             'doc',
             'docx'
         ));
         $ResumeField->setFolderName('Uploads/Resumes');
-        // $ResumeField->setConfig('allowedMaxFileNumber', 1);
-        // $ResumeField->setCanAttachExisting(false);
-        // $ResumeField->setCanPreviewFolder(false);
-        // $ResumeField->relationAutoSetting = false;
+        $ResumeField->setRelationAutoSetting(false);
+        $ResumeField->setAttribute('required', true);
 
         $fields = FieldList::create(
             TextField::create('FirstName', 'First Name')
