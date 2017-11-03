@@ -1,22 +1,22 @@
-JobHolder:
+Dynamic\Jobs\Model\JobHolder:
   default:
     Title: 'Jobs'
-JobCategory:
+Dynamic\Jobs\Model\JobCategory:
   one:
     Title: 'Category One'
   two:
     Title: 'Category Two'
-Job:
+Dynamic\Jobs\Model\Job:
   one:
     Title: 'Job One'
   two:
     Title: 'Job Two'
-JobSubmission:
+Dynamic\Jobs\Model\JobSubmission:
   one:
     FirstName: 'George'
     LastName: 'Costanza'
-    JobID: =>Job.one
+    JobID: =>Dynamic\Jobs\Model\Job.one
   two:
     FirstName: 'Jorge'
     LastName: 'Posada'
-    JobID: =>Job.two
+    JobID: =>Dynamic\Jobs\Model\Job.two

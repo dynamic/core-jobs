@@ -4,5 +4,5 @@ Name: jobs
 JobHolder_Controller:
   managed_object: Job
   extensions:
-    - CollectionExtension
-    - JobHolderCollectionExtension
+    - Dynamic\Collection\CollectionExtension
+    - Dynamic\Jobs\Extensions\JobHolderCollectionExtension

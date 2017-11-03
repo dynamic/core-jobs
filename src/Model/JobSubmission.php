@@ -1,5 +1,19 @@
 <?php
 
+namespace Dynamic\Jobs\Model;
+
+use Dynamic\Jobs\Forms\SimpleHtmlEditorField;
+use SilverStripe\Assets\File;
+use SilverStripe\Forms\DateField;
+use SilverStripe\Forms\EmailField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\FileField;
+use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\Forms\RequiredFields;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Permission;
+
 class JobSubmission extends DataObject
 {
     /**
@@ -33,8 +47,8 @@ class JobSubmission extends DataObject
      * @var array
      */
     private static $has_one = array(
-        'Job' => 'Job',
-        'Resume' => 'File'
+        'Job' => Job::class,
+        'Resume' => File::class
     );
 
     /**
@@ -48,7 +62,7 @@ class JobSubmission extends DataObject
     private static $summary_fields = array(
         'Name' => 'Applicant',
         'Job.Title' => 'Job',
-        'Created.NiceUS' => 'Date'
+        'Created.Nice' => 'Date'
     );
 
     /**
@@ -97,18 +111,20 @@ class JobSubmission extends DataObject
 
     /**
      * @param null $params
-     * @return static
+     * @return FieldList
      */
     public function getFrontEndFields($params = null)
     {
         // Resume Upload
-        $ResumeField = UploadField::create('Resume')->setTitle('Resume');
-        $ResumeField->getValidator()->allowedExtensions = array('pdf', 'doc', 'docx');
+        $ResumeField = FileField::create('Resume')->setTitle('Resume');
+        $ResumeField->getValidator()->setAllowedExtensions(array(
+            'pdf',
+            'doc',
+            'docx'
+        ));
         $ResumeField->setFolderName('Uploads/Resumes');
-        $ResumeField->setConfig('allowedMaxFileNumber', 1);
-        $ResumeField->setCanAttachExisting(false);
-        $ResumeField->setCanPreviewFolder(false);
-        $ResumeField->relationAutoSetting = false;
+        $ResumeField->setRelationAutoSetting(false);
+        $ResumeField->setAttribute('required', true);
 
         $fields = FieldList::create(
             TextField::create('FirstName', 'First Name')
@@ -119,8 +135,7 @@ class JobSubmission extends DataObject
                 ->setAttribute('required', true),
             TextField::create('Phone')
                 ->setAttribute('required', true),
-            DateField::create('Available', 'Date Available')
-                ->setConfig('showcalendar', true),
+            DateField::create('Available', 'Date Available'),
             $ResumeField,
             SimpleHtmlEditorField::create('Content', 'Cover Letter')
         );
@@ -197,7 +212,7 @@ class JobSubmission extends DataObject
      *
      * @return bool|int
      */
-    public function canCreate($member = null)
+    public function canCreate($member = null, $contect = [])
     {
         return Permission::check('Job_CREATE', 'any', $member);
     }

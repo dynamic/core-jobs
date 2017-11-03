@@ -283,7 +283,7 @@ th{ font-size: 16px; text-align: left; }
 				</tr>
 			</table>
 		</td>
-		<% if Employed = yes %>
+		<% if $Employed = yes %>
 		<td class="border">
 			<table width="100%">
 				<tr>
@@ -315,7 +315,7 @@ th{ font-size: 16px; text-align: left; }
 				</tr>
 			</table>
 		</td>
-		<% if AppliedBefore %>
+		<% if $AppliedBefore %>
 		<td class="border">
 			<table width="100%">
 				<tr>

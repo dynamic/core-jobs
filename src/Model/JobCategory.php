@@ -1,5 +1,12 @@
 <?php
 
+namespace Dynamic\Jobs\Model;
+
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\GridField\GridFieldAddNewButton;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Permission;
+
 class JobCategory extends DataObject
 {
     /**
@@ -24,7 +31,7 @@ class JobCategory extends DataObject
      * @var array
      */
     private static $belongs_many_many = array(
-        'Jobs' => 'Job'
+        'Jobs' => Job::class
     );
 
     /**
@@ -53,7 +60,8 @@ class JobCategory extends DataObject
         $fields->dataFieldByName('Name')->setDescription('For internal reference only');
 
         if ($this->ID) {
-            $jobs = $fields->dataFieldByName('Jobs')->getConfig()->removeComponentsByType('GridFieldAddNewButton');
+            $jobs = $fields->dataFieldByName('Jobs')->getConfig()
+                ->removeComponentsByType(GridFieldAddNewButton::class);
         }
 
         return $fields;
@@ -84,7 +92,7 @@ class JobCategory extends DataObject
      *
      * @return bool|int
      */
-    public function canCreate($member = null)
+    public function canCreate($member = null, $context = [])
     {
         return Permission::check('Job_CREATE', 'any', $member);
     }
