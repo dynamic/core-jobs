@@ -83,7 +83,7 @@ class JobSection extends DataObject
         $result = parent::validate();
 
         if (!$this->Name) {
-            $result->addError('Name is requied before you can save');
+            $result->addError('Name is required before you can save');
         }
 
         return $result;
