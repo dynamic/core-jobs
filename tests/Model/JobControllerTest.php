@@ -4,6 +4,7 @@ namespace Dynamic\Jobs\Tests;
 
 use Dynamic\Jobs\Model\Job;
 use Dynamic\Jobs\Model\JobController;
+use Dynamic\Jobs\Model\JobHolder;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\FunctionalTest;
@@ -56,26 +57,40 @@ class JobControllerTest extends FunctionalTest
      */
     public function testDoApply()
     {
-        $this->markTestIncomplete();
-        // $this->autoFollowRedirection = false;
+        $this->autoFollowRedirection = false;
+        $this->clearEmails();
 
+        $this->objFromFixture(JobHolder::class, 'default');
         /** @var Job $object */
-        /*
-        $object = $this->objFromFixture(Job::class, 'one');
+        $object = $this->objFromFixture(Job::class, 'open');
 
         $this->get($object->Link('apply'));
-        $page = $this->submitForm('Form_JobApp', 'action_doApply', array(
+        $page = $this->post($object->Link('JobApp'), array(
             'FirstName' => 'Eric',
             'LastName' => 'Praline',
-            'Email' => 'eric.perline@gmail.com',
+            'Email' => 'eric.praline@gmail.com',
             'Phone' => '444-555-6666',
             'Resume' => null,
         ));
 
-        print_r($page);
+        // $this->assertEmailSent('test@core-jobs.com');
 
         $this->assertInstanceOf(HttpResponse::class, $page);
         $this->assertEquals(302, $page->getStatusCode());
-        */
+
+        $this->clearEmails();
+    }
+
+    /**
+     * Tests complete()
+     */
+    public function testComplete()
+    {
+        /** @var Job $object */
+        $object = $this->objFromFixture(Job::class, 'open');
+        $page = $this->get($object->Link('complete'));
+
+        $this->assertInstanceOf(HttpResponse::class, $page);
+        $this->assertEquals(200, $page->getStatusCode());
     }
 }

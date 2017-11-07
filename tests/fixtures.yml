@@ -78,6 +78,10 @@ Dynamic\Jobs\Model\Job:
     Title: 'Open'
     PostDate: '2017-11-01'
     EndPostDate: '2017-11-30 23:59:59'
+    FromAddress: 'no-reply@core-jobs.com'
+    EmailRecipient: 'test@core-jobs.com'
+    EmailSubject: ''
+    Message: ''
     Parent: =>Dynamic\Jobs\Model\JobHolder.default
   future:
     Title: 'Past'
