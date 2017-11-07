@@ -5,6 +5,7 @@ namespace Dynamic\Jobs\Extensions;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\Form;
 use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\FieldType\DBDatetime;
 
 class JobHolderCollectionExtension extends Extension
 {
@@ -28,14 +29,13 @@ class JobHolderCollectionExtension extends Extension
 
     /**
      * @param $collection
-     * @param $searchCriteria
      */
-    public function updateCollectionItems(ArrayList &$collection, &$searchCriteria)
+    public function updateCollectionItems(ArrayList &$collection)
     {
-        $collection = $collection->filterByCallback(function ($item, $list) {
+        $collection = $collection->filterByCallback(function ($item) {
             return (
-                $item->PostDate <= date('Y-m-d') &&
-                $item->EndPostDate >= date('Y-m-d')
+                $item->PostDate <= DBDatetime::now() &&
+                $item->EndPostDate >= DBDatetime::now()
             );
         });
     }

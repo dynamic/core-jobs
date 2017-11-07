@@ -60,7 +60,7 @@ class JobCategory extends DataObject
         $fields->dataFieldByName('Name')->setDescription('For internal reference only');
 
         if ($this->ID) {
-            $jobs = $fields->dataFieldByName('Jobs')->getConfig()
+            $fields->dataFieldByName('Jobs')->getConfig()
                 ->removeComponentsByType(GridFieldAddNewButton::class);
         }
 

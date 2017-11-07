@@ -2,15 +2,18 @@
 
 namespace Dynamic\Jobs\Tests;
 
-use Dynamic\Jobs\Model\Job;
-use Dynamic\Jobs\Model\JobHolder;
-use SilverStripe\Assets\File;
+use Dynamic\Jobs\Model\JobSubmission;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Security\Member;
 
-class JobTest extends SapphireTest
+/**
+ * Class JobSubmission
+ * @package Dynamic\Jobs\Tests
+ */
+class JobSubmissionTest extends SapphireTest
 {
     /**
      * @var string
@@ -18,78 +21,64 @@ class JobTest extends SapphireTest
     protected static $fixture_file = '../fixtures.yml';
 
     /**
-     * Tests populateDefaults()
+     * Tests getName()
      */
-    public function testPopulateDefaults()
+    public function testGetName()
     {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
-        $object->populateDefaults();
-        $this->assertEquals(date('Y-m-d'), $object->PostDate);
+        /** @var JobSubmission $object */
+        $object = Injector::inst()->create(JobSubmission::class);
+        $this->assertEquals('No Name', $object->getName());
+
+        $object->FirstName = 'Raymond';
+        $object->LastName = 'Luxury-Yacht';
+
+        $this->assertEquals('Raymond Luxury-Yacht', $object->getName());
     }
 
     /**
-     * Tests getCMSFields()
+     * Tests getTitle()
      */
-    public function testGetCMSFields()
+    public function testGetTitle()
     {
-        /** @var Job $object */
-        $object = $this->objFromFixture(Job::class, 'one');
-        $fields = $object->getCMSFields();
+        /** @var JobSubmission $object */
+        $object = Injector::inst()->create(JobSubmission::class);
+        $object->FirstName = 'Arthur';
+        $object->LastName = 'Nudge';
+
+        $this->assertEquals('Arthur Nudge', $object->getTitle());
+    }
+
+    /**
+     * Tests getFrontEndFields()
+     */
+    public function testGetFrontEndFields()
+    {
+        /** @var JobSubmission $object */
+        $object = Injector::inst()->create(JobSubmission::class);
+        $fields = $object->getFrontEndFields();
         $this->assertInstanceOf(FieldList::class, $fields);
     }
 
     /**
-     * Tests getApplyButton()
+     * Tests getRequiredFields()
      */
-    public function testGetApplyButton()
+    public function testGetRequiredFields()
     {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
-        $this->assertStringEndsWith('apply', $object->getApplyButton());
+        /** @var JobSubmission $object */
+        $object = Injector::inst()->create(JobSubmission::class);
+        $fields = $object->getRequiredFields();
+        $this->assertInstanceOf(RequiredFields::class, $fields);
     }
 
     /**
-     * Tests getApplicationLink()
+     * Tests getCMSFields
      */
-    public function testGetApplicationLink()
+    public function testGetCMSFields()
     {
-        /** @var Job $object */
-        $object = $this->objFromFixture(Job::class, 'one');
-        /** @var JobHolder $parent */
-        $parent = $this->objFromFixture(JobHolder::class, 'default');
-
-        $object->ParentID = $parent->ID;
-        $object->write();
-
-        $this->assertFalse($object->getApplicationLink());
-
-        // TODO - fix this part
-        /** @var File $file */
-        $file = $this->objFromFixture(File::class, 'File');
-
-        $parent->ApplicationID = $file->ID;
-        $parent->write();
-
-        // print_r($file->ID);
-        // print_r($object->parent()->Application()->ID);
-
-        // $this->assertEquals($file->URL, $object->getApplicationLink());
-    }
-
-    /**
-     * Tests providePermissions()
-     */
-    public function testProvidePermissions()
-    {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
-        $perms = array(
-            'Job_EDIT' => 'Edit a Job',
-            'Job_DELETE' => 'Delete a Job',
-            'Job_CREATE' => 'Create a Job',
-        );
-        $this->assertEquals($perms, $object->providePermissions());
+        /** @var JobSubmission $object */
+        $object = Injector::inst()->create(JobSubmission::class);
+        $fields = $object->getCMSFields();
+        $this->assertInstanceOf(FieldList::class, $fields);
     }
 
     /**
@@ -97,8 +86,8 @@ class JobTest extends SapphireTest
      */
     public function testCanCreate()
     {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
+        /** @var JobSubmission $object */
+        $object = Injector::inst()->create(JobSubmission::class);
 
         $admin = $this->objFromFixture(Member::class, 'Admin');
         $create = $this->objFromFixture(Member::class, 'Create');
@@ -118,8 +107,8 @@ class JobTest extends SapphireTest
      */
     public function testCanEdit()
     {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
+        /** @var JobSubmission $object */
+        $object = Injector::inst()->create(JobSubmission::class);
 
         $admin = $this->objFromFixture(Member::class, 'Admin');
         $create = $this->objFromFixture(Member::class, 'Create');
@@ -139,8 +128,8 @@ class JobTest extends SapphireTest
      */
     public function testCanDelete()
     {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
+        /** @var JobSubmission $object */
+        $object = Injector::inst()->create(JobSubmission::class);
 
         $admin = $this->objFromFixture(Member::class, 'Admin');
         $create = $this->objFromFixture(Member::class, 'Create');
@@ -160,8 +149,8 @@ class JobTest extends SapphireTest
      */
     public function testCanView()
     {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
+        /** @var JobSubmission $object */
+        $object = Injector::inst()->create(JobSubmission::class);
         $this->assertTrue($object->canView());
     }
 }

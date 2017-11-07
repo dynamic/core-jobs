@@ -93,7 +93,7 @@ class JobController extends PageController
         $fileField = $form->Fields()->fieldByName('Resume');
         if ($fileField !== null) {
             $file = $fileField->getUpload()->getFile();
-            if ($file->exists()) {
+            if ($file !== null && $file->exists()) {
                 $entry->ResumeID = $file->ID;
             }
         }

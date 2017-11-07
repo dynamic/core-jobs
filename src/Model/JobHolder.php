@@ -11,6 +11,7 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\HTMLEditor\HTMLEditorField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataList;
+use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\ORM\ValidationResult;
 
 class JobHolder extends Page
@@ -90,7 +91,7 @@ class JobHolder extends Page
         // TODO - this bugs out and won't create the page if it is in
         /*
                 if(!$this->EmailRecipient) {
-                    $result->addError('Please enter Email Recpient before saving.');
+                    $result->addError('Please enter Email Recipient before saving.');
                 }
 
                 if(!$this->EmailSubject) {
@@ -107,8 +108,8 @@ class JobHolder extends Page
     {
         $jobs = Job::get()
             ->filter([
-                'PostDate:LessThanOrEqual' => date('Y-m-d'),
-                'EndPostDate:GreaterThanOrEqual' => date('Y-m-d'),
+                'PostDate:LessThanOrEqual' => DBDatetime::now(),
+                'EndPostDate:GreaterThanOrEqual' => DBDatetime::now(),
             ])
             ->sort('PostDate DESC');
         return $jobs;

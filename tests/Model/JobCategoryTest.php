@@ -2,15 +2,17 @@
 
 namespace Dynamic\Jobs\Tests;
 
-use Dynamic\Jobs\Model\Job;
-use Dynamic\Jobs\Model\JobHolder;
-use SilverStripe\Assets\File;
+use Dynamic\Jobs\Model\JobCategory;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Security\Member;
 
-class JobTest extends SapphireTest
+/**
+ * Class JobCategoryTest
+ * @package Dynamic\Jobs\Tests
+ */
+class JobCategoryTest extends SapphireTest
 {
     /**
      * @var string
@@ -18,78 +20,14 @@ class JobTest extends SapphireTest
     protected static $fixture_file = '../fixtures.yml';
 
     /**
-     * Tests populateDefaults()
-     */
-    public function testPopulateDefaults()
-    {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
-        $object->populateDefaults();
-        $this->assertEquals(date('Y-m-d'), $object->PostDate);
-    }
-
-    /**
-     * Tests getCMSFields()
+     * Tests getCMSFields
      */
     public function testGetCMSFields()
     {
-        /** @var Job $object */
-        $object = $this->objFromFixture(Job::class, 'one');
+        /** @var JobCategory $object */
+        $object = $this->objFromFixture(JobCategory::class, 'one');
         $fields = $object->getCMSFields();
         $this->assertInstanceOf(FieldList::class, $fields);
-    }
-
-    /**
-     * Tests getApplyButton()
-     */
-    public function testGetApplyButton()
-    {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
-        $this->assertStringEndsWith('apply', $object->getApplyButton());
-    }
-
-    /**
-     * Tests getApplicationLink()
-     */
-    public function testGetApplicationLink()
-    {
-        /** @var Job $object */
-        $object = $this->objFromFixture(Job::class, 'one');
-        /** @var JobHolder $parent */
-        $parent = $this->objFromFixture(JobHolder::class, 'default');
-
-        $object->ParentID = $parent->ID;
-        $object->write();
-
-        $this->assertFalse($object->getApplicationLink());
-
-        // TODO - fix this part
-        /** @var File $file */
-        $file = $this->objFromFixture(File::class, 'File');
-
-        $parent->ApplicationID = $file->ID;
-        $parent->write();
-
-        // print_r($file->ID);
-        // print_r($object->parent()->Application()->ID);
-
-        // $this->assertEquals($file->URL, $object->getApplicationLink());
-    }
-
-    /**
-     * Tests providePermissions()
-     */
-    public function testProvidePermissions()
-    {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
-        $perms = array(
-            'Job_EDIT' => 'Edit a Job',
-            'Job_DELETE' => 'Delete a Job',
-            'Job_CREATE' => 'Create a Job',
-        );
-        $this->assertEquals($perms, $object->providePermissions());
     }
 
     /**
@@ -97,8 +35,8 @@ class JobTest extends SapphireTest
      */
     public function testCanCreate()
     {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
+        /** @var JobCategory $object */
+        $object = Injector::inst()->create(JobCategory::class);
 
         $admin = $this->objFromFixture(Member::class, 'Admin');
         $create = $this->objFromFixture(Member::class, 'Create');
@@ -118,8 +56,8 @@ class JobTest extends SapphireTest
      */
     public function testCanEdit()
     {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
+        /** @var JobCategory $object */
+        $object = Injector::inst()->create(JobCategory::class);
 
         $admin = $this->objFromFixture(Member::class, 'Admin');
         $create = $this->objFromFixture(Member::class, 'Create');
@@ -139,8 +77,8 @@ class JobTest extends SapphireTest
      */
     public function testCanDelete()
     {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
+        /** @var JobCategory $object */
+        $object = Injector::inst()->create(JobCategory::class);
 
         $admin = $this->objFromFixture(Member::class, 'Admin');
         $create = $this->objFromFixture(Member::class, 'Create');
@@ -160,8 +98,8 @@ class JobTest extends SapphireTest
      */
     public function testCanView()
     {
-        /** @var Job $object */
-        $object = Injector::inst()->create(Job::class);
+        /** @var JobCategory $object */
+        $object = Injector::inst()->create(JobCategory::class);
         $this->assertTrue($object->canView());
     }
 }
