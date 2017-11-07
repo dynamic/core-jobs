@@ -91,7 +91,7 @@ class JobHolder extends Page
         // TODO - this bugs out and won't create the page if it is in
         /*
                 if(!$this->EmailRecipient) {
-                    $result->addError('Please enter Email Recpient before saving.');
+                    $result->addError('Please enter Email Recipient before saving.');
                 }
 
                 if(!$this->EmailSubject) {

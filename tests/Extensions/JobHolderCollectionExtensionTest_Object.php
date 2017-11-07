@@ -5,6 +5,7 @@ namespace Dynamic\Jobs\Tests\Extensions;
 use Dynamic\Jobs\Extensions\JobHolderCollectionExtension;
 use SilverStripe\Dev\TestOnly;
 use SilverStripe\Forms\Form;
+use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataObject;
 
 /**
@@ -14,6 +15,8 @@ use SilverStripe\ORM\DataObject;
 class JobHolderCollectionExtensionTest_Object extends DataObject implements TestOnly
 {
     /**
+     * Needs its own table (table too long otherwise)
+     *
      * @var string
      */
     private static $table_name = 'JobHolderCollectionExtension';
@@ -37,10 +40,27 @@ class JobHolderCollectionExtensionTest_Object extends DataObject implements Test
         return $filter;
     }
 
+    /**
+     * @param Form $form
+     *
+     * @return Form
+     */
     public function getCollectionForm(Form $form)
     {
         $this->extend('updateCollectionForm', $form);
 
         return $form;
+    }
+
+    /**
+     * @param ArrayList $collection
+     *
+     * @return ArrayList
+     */
+    public function getCollectionItems(ArrayList $collection)
+    {
+        $this->extend('updateCollectionItems', $collection);
+
+        return $collection;
     }
 }
